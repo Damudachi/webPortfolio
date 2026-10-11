@@ -16,7 +16,7 @@ export default function Page() {
         Skip to content
       </a>
       <Masthead />
-      <main id="top">
+      <main id="top" tabIndex={-1}>
         <Hero />
         <SystemFacts />
         <SelectedWork />

@@ -96,6 +96,10 @@ body {
   padding-block: var(--sec-y);
 }
 
+main:focus {
+  outline: none;
+}
+
 #top,
 #work,
 #profile,

@@ -1,4 +1,3 @@
-import { Portrait } from "./Portrait";
 import { EDUCATION, EXPERIENCE, PROFILE_LEAD } from "@/lib/content";
 
 export function Profile() {
@@ -15,15 +14,12 @@ export function Profile() {
 
             <div>
               <div className="profile__lead">
-                <div>
-                  <h2 className="h2" data-reveal="wipe" id="experience-heading">
-                    Where the work was done.
-                  </h2>
-                  <p className="lede" data-reveal="set" style={{ marginTop: 20 }}>
-                    {PROFILE_LEAD}
-                  </p>
-                </div>
-                <Portrait />
+                <h2 className="h2" data-reveal="wipe" id="experience-heading">
+                  Where the work was done.
+                </h2>
+                <p className="lede" data-reveal="set" style={{ marginTop: 20 }}>
+                  {PROFILE_LEAD}
+                </p>
               </div>
 
               <div className="cv" style={{ marginTop: "clamp(28px, 3vw, 44px)" }}>

@@ -1,11 +1,12 @@
-import { HeroField } from "./HeroField";
+import { Portrait } from "./Portrait";
 import { HERO } from "@/lib/content";
 
 /**
- * The page's one orchestrated moment. The marks in the margin set first,
- * the headline is wiped on a line at a time off its own baseline, and the
- * field only begins to draw once the sentence has finished arriving.
- * Everything below here waits to be scrolled to.
+ * The page's one orchestrated moment. The marks in the margin set first, the
+ * headline is wiped on a line at a time off its own baseline, everything it
+ * rests on follows, and the plate holding the author's photograph arrives
+ * last — as a lattice of samples that a scanning head resolves into the
+ * picture. Everything below this section waits to be scrolled to.
  */
 export function Hero() {
   return (
@@ -52,13 +53,9 @@ export function Hero() {
               </p>
             </div>
 
-            <figure className="hero__fig">
-              <HeroField />
-              <figcaption>
-                <span className="mono">{HERO.figure.label}</span>
-                <span className="note">{HERO.figure.caption}</span>
-              </figcaption>
-            </figure>
+            <div className="hero__plate">
+              <Portrait />
+            </div>
           </div>
         </div>
       </div>

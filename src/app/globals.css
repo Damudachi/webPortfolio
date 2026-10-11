@@ -574,7 +574,7 @@ main:focus {
 
 @media (min-width: 1060px) {
   .hero__grid {
-    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.76fr);
     gap: clamp(40px, 4vw, 64px);
   }
 }
@@ -602,7 +602,9 @@ main:focus {
 [data-motion] .hero__eyebrow,
 [data-motion] .hero__say > *,
 [data-motion] .hero__annot .mono,
-[data-motion] .hero__fig figcaption {
+[data-motion] .hero__plate,
+[data-motion] .hero__plate .portrait__read,
+[data-motion] .hero__plate .fig__cap {
   opacity: 0;
   animation: set-in 720ms ease forwards;
   animation-delay: var(--at, 0ms);
@@ -628,8 +630,17 @@ main:focus {
   --at: 730ms;
 }
 
-[data-motion] .hero__fig figcaption {
-  --at: 900ms;
+[data-motion] .hero__plate {
+  --at: 820ms;
+}
+
+/* the read-out and the caption land only once the face has resolved */
+[data-motion] .hero__plate .portrait__read {
+  --at: 1960ms;
+}
+
+[data-motion] .hero__plate .fig__cap {
+  --at: 2040ms;
 }
 
 [data-motion] .hero__h1 {
@@ -702,81 +713,20 @@ main:focus {
   }
 }
 
-.hero__fig {
+.hero__plate {
   position: relative;
-}
-
-.hero__fig figcaption {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  margin-top: 14px;
-  padding-top: 10px;
-  border-top: var(--hair-soft);
-  flex-wrap: wrap;
-}
-
-/* ---------------- annealing field (hero artifact) ---------------- */
-
-.field {
-  display: block;
+  justify-self: start;
   width: 100%;
-  height: auto;
-  overflow: visible;
+  max-width: 380px;
+  /* Stacked, the plate comes straight after the sentence rather than after
+     everything resting on it, so the face is still near the top on a phone. */
+  order: -1;
 }
 
-.field__line {
-  fill: none;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: var(--len);
-  stroke-dashoffset: var(--len);
-  animation: field-draw 1500ms cubic-bezier(0.22, 0.75, 0.25, 1) calc(var(--d, 0ms) + 460ms) forwards;
-}
-
-.field__ink {
-  fill: none;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: var(--len);
-  stroke-dashoffset: var(--len);
-  animation: field-draw 900ms ease-out calc(var(--d, 0ms) + 460ms) forwards;
-}
-
-.field__node {
-  opacity: 0;
-  animation: field-pop 520ms ease-out calc(var(--d, 0ms) + 460ms) forwards;
-}
-
-.field__edge {
-  stroke: var(--color-rule);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-  opacity: 0;
-  animation: field-fade 620ms ease-out calc(var(--d, 0ms) + 460ms) forwards;
-}
-
-@keyframes field-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes field-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes field-fade {
-  to {
-    opacity: 1;
+@media (min-width: 1060px) {
+  .hero__plate {
+    justify-self: end;
+    order: 0;
   }
 }
 
@@ -1106,6 +1056,89 @@ main:focus {
   opacity: 1;
 }
 
+/* The two exposures sit in here together so one mask can treat them as a
+   single photograph while the plate resolves. */
+.portrait__sample {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/* --- the plate resolving out of its own samples, once, on load ---
+
+   The mask is two layers composited together: a solid band that grows from
+   the top edge downward, and a lattice of dots that is always there. Where
+   the band has arrived the photograph is whole; below it, only the dots come
+   through, so what the reader sees is the picture being sampled rather than
+   a pattern laid over it. A scanning head travels on the join.
+
+   Gated on `@supports` as well as `data-motion`: a browser that paints the
+   mask but will not animate `mask-size` would otherwise hold the face at
+   dots forever. */
+@supports (mask-composite: add) {
+  [data-motion] .portrait__sample {
+    --pitch: 9px;
+    --dot: 1.1px;
+    mask-image:
+      linear-gradient(#000, #000),
+      radial-gradient(
+        circle at 50% 50%,
+        #000 0 var(--dot),
+        transparent calc(var(--dot) + 0.6px)
+      );
+    mask-repeat: no-repeat, repeat;
+    mask-position: top left, top left;
+    mask-size: 100% 0%, var(--pitch) var(--pitch);
+    mask-composite: add;
+    animation: portrait-resolve 1060ms cubic-bezier(0.36, 0.08, 0.2, 1) 880ms forwards;
+  }
+
+  @keyframes portrait-resolve {
+    to {
+      mask-size: 100% 100%, var(--pitch) var(--pitch);
+    }
+  }
+}
+
+.portrait__scan {
+  display: none;
+}
+
+[data-motion] .portrait__scan {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-silver) 88%, transparent) 0 2px,
+    color-mix(in srgb, var(--color-silver) 13%, transparent) 2px 15px,
+    transparent 15px
+  );
+  animation: portrait-scan 1060ms cubic-bezier(0.36, 0.08, 0.2, 1) 880ms forwards;
+}
+
+@keyframes portrait-scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  7% {
+    opacity: 1;
+  }
+  93% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
 /* the exposure changing, read as one pass of a scanning head */
 .portrait__pass {
   position: absolute;
@@ -1120,15 +1153,20 @@ main:focus {
     transparent,
     color-mix(in srgb, var(--color-silver) 16%, transparent)
   );
-  animation: portrait-pass 620ms cubic-bezier(0.4, 0, 0.25, 1);
+  animation: portrait-pass 620ms cubic-bezier(0.4, 0, 0.25, 1) forwards;
 }
 
 @keyframes portrait-pass {
   from {
     transform: translateY(-110%);
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
   }
   to {
     transform: translateY(460%);
+    opacity: 0;
   }
 }
 
@@ -1175,17 +1213,8 @@ main:focus {
 }
 
 .profile__lead {
-  display: grid;
-  gap: clamp(30px, 3.2vw, 44px);
   margin-top: clamp(18px, 2vw, 26px);
-  align-items: start;
-}
-
-@media (min-width: 860px) {
-  .profile__lead {
-    grid-template-columns: minmax(0, 1fr) minmax(230px, 0.6fr);
-    gap: clamp(36px, 4vw, 64px);
-  }
+  max-width: var(--measure);
 }
 
 /* --- keyed legend: rows drive the callouts on the figure --- */
@@ -1923,8 +1952,41 @@ main:focus {
 
 @media (min-width: 760px) {
   .cred {
-    grid-template-columns: minmax(0, 1fr) 210px 64px;
+    grid-template-columns: minmax(0, 1fr) 200px 92px 128px;
   }
+}
+
+/* a credential with an issuer page behind it */
+.cred--go {
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.25s ease;
+}
+
+.cred--go:hover,
+.cred--go:focus-visible {
+  background: color-mix(in srgb, var(--color-panel) 70%, transparent);
+}
+
+.cred__verify {
+  color: var(--color-mute);
+  white-space: nowrap;
+  justify-self: start;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-mute) 55%, transparent);
+  padding-bottom: 1px;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+@media (min-width: 760px) {
+  .cred__verify {
+    justify-self: end;
+  }
+}
+
+.cred--go:hover .cred__verify,
+.cred--go:focus-visible .cred__verify {
+  color: var(--color-silver);
+  border-color: var(--color-silver);
 }
 
 .cred h3 {
@@ -1938,6 +2000,7 @@ main:focus {
   font-size: var(--t-small);
   color: var(--color-mute);
   text-align: right;
+  white-space: nowrap;
 }
 
 /* ---------------- contact ---------------- */
@@ -2041,16 +2104,6 @@ main:focus {
     transition-duration: 0.001ms !important;
   }
 
-  .field__line,
-  .field__ink {
-    stroke-dashoffset: 0;
-  }
-
-  .field__node,
-  .field__edge {
-    opacity: 1;
-  }
-
   /* Belt and braces: the inline switch in the document head should already
      have withheld `data-motion`, so none of the reveals are armed. If it is
      ever set anyway, unwind every one of them here. */
@@ -2067,14 +2120,23 @@ main:focus {
   .hero__eyebrow,
   .hero__say > *,
   .hero__annot .mono,
-  .hero__fig figcaption,
+  .hero__plate,
+  .hero__plate .portrait__read,
+  .hero__plate .fig__cap,
   .hero__h1,
   .hero__h1 .h1-line__ink {
     clip-path: none;
     opacity: 1;
   }
 
-  .portrait__pass {
+  /* The plate arrives as the photograph: no samples, no scanning head, no
+     turning over on its own. Pointing at it still swaps the exposure. */
+  .portrait__sample {
+    mask-image: none !important;
+  }
+
+  .portrait__pass,
+  .portrait__scan {
     display: none;
   }
 }

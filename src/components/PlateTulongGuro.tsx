@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Callout, PlateHead, PlateLinks, StackList, stateOf } from "./plate-parts";
 import { Shot } from "./Shot";
 import { Tally } from "./Tally";
-import { buildScrawl } from "@/lib/field";
+import { buildScrawl } from "@/lib/scrawl";
 import { TULONGGURO as P } from "@/lib/content";
 import tulongguro from "@/images/shot-tulongguro.webp";
 

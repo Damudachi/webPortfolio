@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import shades from "@/images/portrait-shades.webp";
 import smile from "@/images/portrait-smile.webp";
 import { PORTRAIT } from "@/lib/content";
@@ -9,32 +9,51 @@ import { PORTRAIT } from "@/lib/content";
 const CYCLE = 10_000;
 
 /**
- * Two exposures of one sitting, registered to the same crop so the swap
- * reads as a face changing rather than two photographs trading places.
+ * The page's hero artifact: two exposures of one sitting, registered to the
+ * same crop so the swap reads as a face changing rather than two photographs
+ * trading places.
  *
- * It turns over on its own every ten seconds, holds the second exposure
- * while a reader is pointing at it, and can be held by click or keyboard.
- * The unattended cycle stops entirely under reduced motion: a picture that
- * changes by itself is exactly what that setting is asking us not to do.
+ * On load the plate arrives as a lattice of samples of the photograph itself
+ * and a scanning head resolves it, top to bottom, into the picture — the page
+ * reading its own author the way every system on it reads its input. After
+ * that it turns over on its own every ten seconds, holds the second exposure
+ * while a reader is pointing at it, and can be pinned by click or keyboard.
+ *
+ * The unattended cycle and the resolve both stop under reduced motion: a
+ * picture that changes by itself is exactly what that setting asks us not to
+ * do, so the photograph simply arrives finished.
  */
 export function Portrait() {
   const [ticked, setTicked] = useState(false);
   const [held, setHeld] = useState(false);
   const [pointed, setPointed] = useState(false);
 
-  // The unattended turn restarts whenever the reader lets go, so leaving the
-  // plate is never immediately followed by it changing on its own.
+  /**
+   * Read by the timer rather than closed over, so that pointing at the plate
+   * lets a turn pass instead of tearing the timer down and rebuilding it.
+   * Rebuilding it meant a reader whose cursor came to rest anywhere on the
+   * plate stopped the cycle for as long as it stayed there, and the picture
+   * looked broken rather than held.
+   */
+  const holding = useRef(false);
   useEffect(() => {
-    if (!document.documentElement.dataset.motion || pointed) return;
-    const timer = setInterval(() => setTicked((on) => !on), CYCLE);
+    holding.current = pointed || held;
+  }, [pointed, held]);
+
+  useEffect(() => {
+    if (!document.documentElement.dataset.motion) return;
+    const timer = setInterval(() => {
+      if (holding.current) return;
+      setTicked((on) => !on);
+    }, CYCLE);
     return () => clearInterval(timer);
-  }, [pointed]);
+  }, []);
 
   const serious = held || pointed || ticked;
   const state = PORTRAIT.states[serious ? 1 : 0];
 
   return (
-    <figure className="portrait" data-reveal="frame">
+    <figure className="portrait">
       <button
         type="button"
         className="portrait__plate"
@@ -47,24 +66,31 @@ export function Portrait() {
         onClick={() => setHeld((on) => !on)}
       >
         <span className="portrait__frame">
-          <Image
-            className="portrait__img"
-            data-on={serious ? undefined : ""}
-            src={smile}
-            alt=""
-            fill
-            sizes="(min-width: 860px) 32vw, 88vw"
-            placeholder="blur"
-          />
-          <Image
-            className="portrait__img"
-            data-on={serious ? "" : undefined}
-            src={shades}
-            alt=""
-            fill
-            sizes="(min-width: 860px) 32vw, 88vw"
-            placeholder="blur"
-          />
+          {/* Both exposures load eagerly: this plate is the first thing on
+              the page, and it sits inside a clipped frame, where a lazy image
+              has no intersection area to report and may never be fetched. */}
+          <span className="portrait__sample">
+            <Image
+              className="portrait__img"
+              data-on={serious ? undefined : ""}
+              src={smile}
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1060px) 42vw, 88vw"
+            />
+            <Image
+              className="portrait__img"
+              data-on={serious ? "" : undefined}
+              src={shades}
+              alt=""
+              fill
+              loading="eager"
+              sizes="(min-width: 1060px) 42vw, 88vw"
+            />
+          </span>
+
+          <span className="portrait__scan" aria-hidden="true" />
           <span className="portrait__pass" key={String(serious)} aria-hidden="true" />
           <span className="portrait__reg" aria-hidden="true" />
         </span>

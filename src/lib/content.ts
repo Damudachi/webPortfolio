@@ -42,11 +42,6 @@ export const HERO = {
     "AI/ML-focused developer working across multimodal AI, computer vision, and full-stack systems.",
   availability: "OPEN TO AI/ML ENGINEERING INTERNSHIPS",
   annotations: ["BUILD", "TEST", "ITERATE"],
-  figure: {
-    label: "FIG. 00 — INPUT, INTERPRETATION, SYSTEM",
-    caption:
-      "Loose marks resolve into a measured field, then into the discrete structure a system can act on.",
-  },
 };
 
 export const FACTS = [
@@ -256,13 +251,13 @@ export const PROFILE_LEAD =
   "Most of this was built while studying — for a thesis, for a campus office, and with a team. The constraint never changed: it has to hold up for the person who actually has to use it.";
 
 export const PORTRAIT = {
-  fig: "FIG. 4 — THE AUTHOR",
+  fig: "FIG. 00 — THE AUTHOR",
   alt: "Aldrich Sabando, in a dark suit and tie, facing the camera.",
   states: [
     { key: "smile", label: "At ease", hint: "Resting state" },
     { key: "shades", label: "On task", hint: "Hover, or wait ten seconds" },
   ],
-  note: "Two exposures of the same sitting. The page cycles between them every ten seconds; point at the plate to hold the second.",
+  note: "The plate arrives as samples and resolves into the photograph. Two exposures of one sitting; it turns over every ten seconds, and pointing at it holds the second.",
 };
 
 export const EXPERIENCE = [
@@ -360,16 +355,110 @@ export const STACK = [
   },
 ];
 
-export const CREDENTIALS = [
+/**
+ * Newest first. `href` is the issuer's own verification page — the
+ * "Show credential" link on the LinkedIn entry. A credential with no href
+ * renders as plain text, so an unverified one is never dressed up as a link.
+ *
+ * Titles, issuers and dates are the issuers' own: the Credly entries were
+ * read back from their badge assertions rather than transcribed, so what the
+ * page claims and what the badge says cannot drift apart. The two without
+ * links are certificate files with no public verification page.
+ */
+export const CREDENTIALS: {
+  title: string;
+  issuer: string;
+  year: string;
+  href?: string;
+}[] = [
   {
     title: "Supervised Machine Learning: Regression and Classification",
     issuer: "DeepLearning.AI",
-    year: "2026",
+    year: "MAY 2026",
+    href: "https://www.coursera.org/account/accomplishments/verify/LSZEUD1M6ZPO",
   },
-  { title: "AWS Academy Cloud Foundations", issuer: "AWS Academy", year: "" },
-  { title: "AI Fundamentals", issuer: "IBM SkillsBuild", year: "2026" },
-  { title: "Data Analytics Essentials", issuer: "Cisco", year: "2026" },
-  { title: "Google Cloud Security", issuer: "Google Cloud", year: "2026" },
+  {
+    title: "SkillQuest — Generative AI Literacy",
+    issuer: "Simplilearn SkillUp",
+    year: "MAY 2026",
+  },
+  {
+    title: "AWS Academy Graduate — Cloud Foundations",
+    issuer: "AWS Training & Certification",
+    year: "MAR 2026",
+    href: "https://www.credly.com/badges/ee3ea386-fb04-4722-93ba-fdb20ba2e76b/linked_in_profile",
+  },
+  {
+    title: "Data Analytics Essentials",
+    issuer: "Cisco",
+    year: "MAR 2026",
+    href: "https://www.credly.com/badges/757fb578-b2dd-4377-97ef-9efc2e868da5/linked_in_profile",
+  },
+  {
+    title: "AI Fundamentals with IBM SkillsBuild",
+    issuer: "Cisco",
+    year: "MAR 2026",
+    href: "https://www.credly.com/badges/43ac7b5e-9157-4859-9ba6-0bfbe5e465ee/linked_in_profile",
+  },
+  {
+    title: "Artificial Intelligence Fundamentals",
+    issuer: "IBM SkillsBuild",
+    year: "MAR 2026",
+    href: "https://www.credly.com/badges/526e2db8-65c4-4428-80a5-938ced921ab2/linked_in_profile",
+  },
+  {
+    title: "Google Cloud Security",
+    issuer: "Google Cloud",
+    year: "FEB 2026",
+    href: "https://www.credly.com/badges/b8e733b6-261a-40ef-9b12-d5fa9a51f802/linked_in_profile",
+  },
+  {
+    title: "HackAda AI Challenge — AI in UX for Fintech",
+    issuer: "KadaKareer × Home Credit",
+    year: "DEC 2025",
+  },
+  {
+    title: "Cyber Threat Management",
+    issuer: "Cisco",
+    year: "NOV 2025",
+    href: "https://www.credly.com/badges/a1a0a44a-ef3f-46b5-a352-62501a6b663f/linked_in_profile",
+  },
+  {
+    title: "Endpoint Security",
+    issuer: "Cisco",
+    year: "AUG 2025",
+    href: "https://www.credly.com/badges/69f1dac4-ce0f-453e-9908-3b7b12f9288f/linked_in_profile",
+  },
+  {
+    title: "JavaScript Essentials 1",
+    issuer: "Cisco",
+    year: "OCT 2024",
+    href: "https://www.credly.com/badges/c3e66cfd-4df9-4f19-8f63-01f6e7b44da3/linked_in_profile",
+  },
+  {
+    title: "CompTIA IT Fundamentals+ (ITF+)",
+    issuer: "CompTIA",
+    year: "NOV 2023",
+    href: "https://www.credly.com/badges/ed376267-ccbd-403d-bc70-14d5deb62b6a/linked_in_profile",
+  },
+  {
+    title: "Build a Certification Study Guide: PMLE",
+    issuer: "Google Skills",
+    year: "",
+    href: "https://www.skills.google/public_profiles/bec87c87-24a5-4be3-be98-1090d8afc33c/badges/23447856",
+  },
+  {
+    title: "Responsive Web Design",
+    issuer: "freeCodeCamp",
+    year: "",
+    href: "https://www.freecodecamp.org/certification/damudachi/responsive-web-design",
+  },
+  {
+    title: "Relational Database",
+    issuer: "freeCodeCamp",
+    year: "",
+    href: "https://www.freecodecamp.org/certification/damudachi/relational-database-v8",
+  },
 ];
 
 export const CONTACT = {

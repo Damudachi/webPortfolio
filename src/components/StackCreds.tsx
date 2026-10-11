@@ -49,13 +49,34 @@ export function StackCreds() {
               </h2>
 
               <div className="creds" style={{ marginTop: "clamp(22px, 2.4vw, 32px)" }}>
-                {CREDENTIALS.map((credential) => (
-                  <div className="cred" key={credential.title}>
-                    <h3>{credential.title}</h3>
-                    <p className="mono-plain">{credential.issuer}</p>
-                    <p className="cred__year">{credential.year || "—"}</p>
-                  </div>
-                ))}
+                {CREDENTIALS.map((credential) => {
+                  const face = (
+                    <>
+                      <h3>{credential.title}</h3>
+                      <p className="mono-plain">{credential.issuer}</p>
+                      <p className="cred__year">{credential.year || "—"}</p>
+                    </>
+                  );
+
+                  /* Only a credential with an issuer page to point at becomes
+                     a link, so nothing unverifiable is dressed up as proof. */
+                  return credential.href ? (
+                    <a
+                      className="cred cred--go"
+                      key={credential.title}
+                      href={credential.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {face}
+                      <span className="mono cred__verify">Show credential</span>
+                    </a>
+                  ) : (
+                    <div className="cred" key={credential.title}>
+                      {face}
+                    </div>
+                  );
+                })}
               </div>
 
               <p style={{ marginTop: 22 }}>

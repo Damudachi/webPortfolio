@@ -2,10 +2,10 @@ import { CONTACT, HERO } from "@/lib/content";
 
 export function Contact() {
   return (
-    <section className="section" id="contact" aria-labelledby="contact-heading">
-      <div className="wrap section-pad">
+    <section className="section" data-reveal="rule" id="contact" aria-labelledby="contact-heading">
+      <div className="wrap section-pad" data-reveal="spine">
         <div className="rail">
-          <div className="rail-head">
+          <div className="rail-head" data-reveal="set">
             <p className="index">
               <span>07 /</span> GET IN TOUCH
             </p>
@@ -13,7 +13,7 @@ export function Contact() {
           </div>
 
           <div>
-            <h2 className="h2 contact__h" id="contact-heading">
+            <h2 className="h2 contact__h" data-reveal="wipe" id="contact-heading">
               {CONTACT.headline}
             </h2>
             <p className="lede">{CONTACT.support}</p>

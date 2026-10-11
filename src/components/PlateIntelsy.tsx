@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Legend, PlateHead, StackList, SvgCallout, stateOf } from "./plate-parts";
+import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf } from "./plate-parts";
 import { INTELSY as P } from "@/lib/content";
 
 /** An abstract stand-in for a person on a floor. No faces, no photograph. */
@@ -82,8 +82,10 @@ export function PlateIntelsy() {
           </div>
 
           <p className="lede">{P.summary}</p>
+          <PlateLinks links={P.links} note={P.teamNote} />
 
           <Legend items={P.legend} active={active} onActive={setActive} />
+          <StackList terms={P.stack} />
         </div>
 
         <figure className="plate__figure">
@@ -217,23 +219,12 @@ export function PlateIntelsy() {
           </div>
 
           <figcaption className="fig__cap">
-            <span className="mono">FIG. 03 — THREE PPE CLASSES ON ONE FRAME</span>
+            <span className="mono">FIG. 3.1 — THREE PPE CLASSES ON ONE FRAME</span>
             <span className="note">{P.caption}</span>
           </figcaption>
         </figure>
       </div>
 
-      <div className="plate__foot">
-        <p className="prose" style={{ fontSize: "var(--t-small)" }}>
-          {P.teamNote}
-        </p>
-        <StackList terms={P.stack} />
-        <div className="plate__actions">
-          <a className="link-out" href={P.repo} target="_blank" rel="noopener noreferrer">
-            Team repository on GitHub
-          </a>
-        </div>
-      </div>
     </article>
   );
 }

@@ -54,9 +54,22 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+/**
+ * Every reveal on this page is hidden only while `data-motion` is set, and
+ * this is what sets it — before the first paint, so nothing is drawn and
+ * then taken away again. If scripting is off, or the reader has asked for
+ * reduced motion, the attribute never lands and the page arrives finished.
+ */
+const MOTION_SWITCH =
+  "try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches)" +
+  "document.documentElement.dataset.motion='on'}catch(e){}";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${archivo.variable} ${plexMono.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_SWITCH }} />
+      </head>
       <body>{children}</body>
     </html>
   );

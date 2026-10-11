@@ -29,6 +29,12 @@ export const NAV = [
   { id: "contact", label: "Contact" },
 ];
 
+/**
+ * When the live screenshots on this page were taken. Shown on every capture,
+ * so a reader can tell how old the picture is rather than assume it is today.
+ */
+export const CAPTURED = "11 OCT 2026";
+
 export const HERO = {
   eyebrow: "COMPUTER SCIENCE · HOLY ANGEL UNIVERSITY · PHILIPPINES",
   headline: ["I build systems that turn", "complex inputs into", "useful outcomes."],
@@ -81,6 +87,15 @@ export const TULONGGURO = {
     "Render",
   ],
   demo: "https://tulong-guro.vercel.app/",
+  links: [
+    { label: "Open the live site", href: "https://tulong-guro.vercel.app/", lead: true },
+  ],
+  shot: {
+    bar: "tulong-guro.vercel.app",
+    alt: "The TulongGuro home page, headlined “Grading that gives you your evenings back”, with buttons to register a school or sign in.",
+    fig: "FIG. 1.1 — THE LIVE SITE",
+    note: "A capture of the deployed application, not a mockup.",
+  },
   steps: [
     {
       n: 1,
@@ -116,6 +131,25 @@ export const LITURGYGEN = {
     "Automates Philippine liturgical date resolution, reading retrieval, prayer matching, and print-ready .docx generation.",
   stack: ["Python", "FastAPI", "SQLite", "PostgreSQL", "python-docx", "Server-Sent Events"],
   repo: "https://github.com/Damudachi/LiturgyGen",
+  links: [
+    { label: "Try the demo", href: "https://damudachi.github.io/LiturgyGen/", lead: true },
+    { label: "Read the code", href: "https://github.com/Damudachi/LiturgyGen", lead: false },
+  ],
+  demoNote: "The demo runs on seeded data with no sign-in.",
+  shots: [
+    {
+      src: "day",
+      bar: "LiturgyGen / a day, open",
+      alt: "A day open in LiturgyGen: the steps for 8 September 2026 on the left, the missalette laid out as it will print on the right.",
+      fig: "FIG. 2.2 — A DAY, OPEN AS A BOOK",
+    },
+    {
+      src: "calendar",
+      bar: "LiturgyGen / the month",
+      alt: "A month of September 2026 as a grid of tiles, each marked with its liturgical colour and the feast the day keeps.",
+      fig: "FIG. 2.3 — THE MONTH AS TILES",
+    },
+  ],
   legend: [
     {
       n: 1,
@@ -152,6 +186,13 @@ export const INTELSY = {
     "A computer-vision pipeline for detecting hardhats, safety vests, and face masks.",
   stack: ["Python", "YOLOv8", "OpenCV", "PyTorch"],
   repo: "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY",
+  links: [
+    {
+      label: "Team repository",
+      href: "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY",
+      lead: false,
+    },
+  ],
   teamNote: "Team repository — built with the MIGHT team, not solo.",
   legend: [
     {
@@ -210,6 +251,19 @@ export const PRINCIPLES = [
     body: "Consider usability, deployment, and operational constraints alongside model capability.",
   },
 ];
+
+export const PROFILE_LEAD =
+  "Most of this was built while studying — for a thesis, for a campus office, and with a team. The constraint never changed: it has to hold up for the person who actually has to use it.";
+
+export const PORTRAIT = {
+  fig: "FIG. 4 — THE AUTHOR",
+  alt: "Aldrich Sabando, in a dark suit and tie, facing the camera.",
+  states: [
+    { key: "smile", label: "At ease", hint: "Resting state" },
+    { key: "shades", label: "On task", hint: "Hover, or wait ten seconds" },
+  ],
+  note: "Two exposures of the same sitting. The page cycles between them every ten seconds; point at the plate to hold the second.",
+};
 
 export const EXPERIENCE = [
   {

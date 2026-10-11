@@ -1,5 +1,6 @@
 "use client";
 
+import { Outward } from "./Outward";
 import type { LegendItem } from "@/lib/content";
 
 export type ZoneState = "on" | "off" | undefined;
@@ -117,6 +118,31 @@ export function Legend({
         </li>
       ))}
     </ul>
+  );
+}
+
+export type PlateLink = { label: string; href: string; lead: boolean };
+
+/** Where a project can actually be opened, stated once and high up. */
+export function PlateLinks({ links, note }: { links: PlateLink[]; note?: string }) {
+  return (
+    <div className="plate__links">
+      <div className="plate__links-row">
+        {links.map((link) => (
+          <a
+            className={link.lead ? "link-out link-out--solid" : "link-out"}
+            key={link.href}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {link.label}
+            <Outward />
+          </a>
+        ))}
+      </div>
+      {note ? <p className="note">{note}</p> : null}
+    </div>
   );
 }
 

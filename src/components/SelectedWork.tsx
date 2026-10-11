@@ -5,10 +5,10 @@ import { MORE_BUILDS } from "@/lib/content";
 
 export function SelectedWork() {
   return (
-    <section className="section" id="work" aria-labelledby="work-heading">
-      <div className="wrap section-pad">
+    <section className="section" data-reveal="rule" id="work" aria-labelledby="work-heading">
+      <div className="wrap section-pad" data-reveal="spine">
         <div className="rail">
-          <div className="rail-head">
+          <div className="rail-head" data-reveal="set">
             <p className="index">
               <span>01 /</span> SELECTED WORK
             </p>
@@ -16,7 +16,7 @@ export function SelectedWork() {
           </div>
 
           <div>
-            <h2 className="h2" id="work-heading">
+            <h2 className="h2" data-reveal="wipe" id="work-heading">
               Built for real-world friction.
             </h2>
             <p className="lede" style={{ marginTop: 18 }}>

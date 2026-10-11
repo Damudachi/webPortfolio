@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Legend, PlateHead, StackList, SvgCallout, stateOf } from "./plate-parts";
+import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf } from "./plate-parts";
+import { Shot } from "./Shot";
 import { LITURGYGEN as P } from "@/lib/content";
+import calendar from "@/images/shot-liturgygen-calendar.webp";
+import day from "@/images/shot-liturgygen-day.webp";
+
+const SHOTS = { day, calendar };
 
 const RUNGS = [
   { y: 56, label: "RESOLVE LITURGICAL DATE" },
@@ -32,6 +37,20 @@ export function PlateLiturgyGen() {
           </p>
         </div>
         <p className="lede">{P.summary}</p>
+        <PlateLinks links={P.links} note={P.demoNote} />
+      </div>
+
+      <div className="plate__shots">
+        {P.shots.map((shot) => (
+          <Shot
+            key={shot.src}
+            src={SHOTS[shot.src as keyof typeof SHOTS]}
+            alt={shot.alt}
+            bar={shot.bar}
+            fig={shot.fig}
+            href={P.links[0].href}
+          />
+        ))}
       </div>
 
       <div className="plate__body plate__body--pair">
@@ -253,7 +272,7 @@ export function PlateLiturgyGen() {
           </div>
 
           <figcaption className="fig__cap">
-            <span className="mono">FIG. 02 — GENERATION RUN, SOURCE TO SHEET</span>
+            <span className="mono">FIG. 2.1 — GENERATION RUN, SOURCE TO SHEET</span>
             <span className="note">
               A specimen of the publishing workflow, not a rendered missalette.
             </span>
@@ -268,11 +287,6 @@ export function PlateLiturgyGen() {
           {P.context}
         </p>
         <StackList terms={P.stack} />
-        <div className="plate__actions">
-          <a className="link-out" href={P.repo} target="_blank" rel="noopener noreferrer">
-            Repository on GitHub
-          </a>
-        </div>
       </div>
     </article>
   );

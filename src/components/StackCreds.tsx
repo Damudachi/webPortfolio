@@ -3,17 +3,17 @@ import { CREDENTIALS, LINKS, STACK } from "@/lib/content";
 export function StackCreds() {
   return (
     <div id="stack">
-      <section className="section" aria-labelledby="stack-heading">
-        <div className="wrap section-pad">
+      <section className="section" data-reveal="rule" aria-labelledby="stack-heading">
+        <div className="wrap section-pad" data-reveal="spine">
           <div className="rail">
-            <div className="rail-head">
+            <div className="rail-head" data-reveal="set">
               <p className="index">
                 <span>05 /</span> TECHNICAL STACK
               </p>
             </div>
 
             <div>
-              <h2 className="h2" id="stack-heading">
+              <h2 className="h2" data-reveal="wipe" id="stack-heading">
                 What I reach for.
               </h2>
 
@@ -34,17 +34,17 @@ export function StackCreds() {
         </div>
       </section>
 
-      <section className="section" aria-labelledby="credentials-heading">
-        <div className="wrap section-pad">
+      <section className="section" data-reveal="rule" aria-labelledby="credentials-heading">
+        <div className="wrap section-pad" data-reveal="spine">
           <div className="rail">
-            <div className="rail-head">
+            <div className="rail-head" data-reveal="set">
               <p className="index">
                 <span>06 /</span> CREDENTIALS
               </p>
             </div>
 
             <div>
-              <h2 className="h2" id="credentials-heading" style={{ fontSize: "var(--t-title)" }}>
+              <h2 className="h2" data-reveal="wipe" id="credentials-heading" style={{ fontSize: "var(--t-title)" }}>
                 Certificates and short courses.
               </h2>
 

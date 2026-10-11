@@ -1,21 +1,30 @@
-import { EDUCATION, EXPERIENCE } from "@/lib/content";
+import { Portrait } from "./Portrait";
+import { EDUCATION, EXPERIENCE, PROFILE_LEAD } from "@/lib/content";
 
 export function Profile() {
   return (
     <div id="profile">
-      <section className="section" aria-labelledby="experience-heading">
-        <div className="wrap section-pad">
+      <section className="section" data-reveal="rule" aria-labelledby="experience-heading">
+        <div className="wrap section-pad" data-reveal="spine">
           <div className="rail">
-            <div className="rail-head">
+            <div className="rail-head" data-reveal="set">
               <p className="index">
                 <span>03 /</span> EXPERIENCE
               </p>
             </div>
 
             <div>
-              <h2 className="h2" id="experience-heading">
-                Where the work was done.
-              </h2>
+              <div className="profile__lead">
+                <div>
+                  <h2 className="h2" data-reveal="wipe" id="experience-heading">
+                    Where the work was done.
+                  </h2>
+                  <p className="lede" data-reveal="set" style={{ marginTop: 20 }}>
+                    {PROFILE_LEAD}
+                  </p>
+                </div>
+                <Portrait />
+              </div>
 
               <div className="cv" style={{ marginTop: "clamp(28px, 3vw, 44px)" }}>
                 {EXPERIENCE.map((role) => (
@@ -37,10 +46,10 @@ export function Profile() {
         </div>
       </section>
 
-      <section className="section" aria-labelledby="education-heading">
-        <div className="wrap section-pad">
+      <section className="section" data-reveal="rule" aria-labelledby="education-heading">
+        <div className="wrap section-pad" data-reveal="spine">
           <div className="rail">
-            <div className="rail-head">
+            <div className="rail-head" data-reveal="set">
               <p className="index">
                 <span>04 /</span> EDUCATION
               </p>
@@ -48,7 +57,7 @@ export function Profile() {
 
             <div className="edu">
               <div>
-                <h2 className="h2" id="education-heading" style={{ fontSize: "var(--t-title)" }}>
+                <h2 className="h2" data-reveal="wipe" id="education-heading" style={{ fontSize: "var(--t-title)" }}>
                   {EDUCATION.degree}
                 </h2>
                 <p className="lede" style={{ marginTop: 12 }}>

@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Grain } from "@/components/Grain";
 import { Hero } from "@/components/Hero";
 import { Masthead } from "@/components/Masthead";
+import { Motion } from "@/components/Motion";
 import { Principles } from "@/components/Principles";
 import { Profile } from "@/components/Profile";
 import { SelectedWork } from "@/components/SelectedWork";
@@ -27,6 +28,7 @@ export default function Page() {
       </main>
       <Footer />
       <Grain />
+      <Motion />
     </>
   );
 }

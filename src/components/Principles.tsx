@@ -27,17 +27,17 @@ const ICONS = [
 
 export function Principles() {
   return (
-    <section className="section" aria-labelledby="principles-heading">
-      <div className="wrap section-pad">
+    <section className="section" data-reveal="rule" aria-labelledby="principles-heading">
+      <div className="wrap section-pad" data-reveal="spine">
         <div className="rail">
-          <div className="rail-head">
+          <div className="rail-head" data-reveal="set">
             <p className="index">
               <span>02 /</span> HOW I BUILD
             </p>
           </div>
 
           <div>
-            <h2 className="h2" id="principles-heading">
+            <h2 className="h2" data-reveal="wipe" id="principles-heading">
               Decisions I make before the model does.
             </h2>
 

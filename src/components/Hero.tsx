@@ -1,13 +1,19 @@
 import { HeroField } from "./HeroField";
 import { HERO } from "@/lib/content";
 
+/**
+ * The page's one orchestrated moment. The marks in the margin set first,
+ * the headline is wiped on a line at a time off its own baseline, and the
+ * field only begins to draw once the sentence has finished arriving.
+ * Everything below here waits to be scrolled to.
+ */
 export function Hero() {
   return (
     <section className="wrap hero" aria-labelledby="hero-heading">
       <div className="rail">
         <div className="rail-head hero__annot" aria-hidden="true">
           {HERO.annotations.map((word, i) => (
-            <span className="mono" key={word}>
+            <span className="mono" key={word} style={{ "--i": i } as React.CSSProperties}>
               <b>{String(i + 1).padStart(2, "0")}</b> {word}
             </span>
           ))}
@@ -18,9 +24,11 @@ export function Hero() {
 
           <h1 className="h1 hero__h1" id="hero-heading">
             {HERO.headline.map((line, i) => (
-              <span className="h1-line" key={line}>
-                {line}
-                {i < HERO.headline.length - 1 ? " " : null}
+              <span className="h1-line" key={line} style={{ "--i": i } as React.CSSProperties}>
+                <span className="h1-line__ink">
+                  {line}
+                  {i < HERO.headline.length - 1 ? " " : null}
+                </span>
               </span>
             ))}
           </h1>

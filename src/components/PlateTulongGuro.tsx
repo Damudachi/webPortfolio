@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Callout, PlateHead, StackList, stateOf } from "./plate-parts";
+import { Callout, PlateHead, PlateLinks, StackList, stateOf } from "./plate-parts";
+import { Shot } from "./Shot";
+import { Tally } from "./Tally";
 import { buildScrawl } from "@/lib/field";
 import { TULONGGURO as P } from "@/lib/content";
+import tulongguro from "@/images/shot-tulongguro.webp";
 
 const PAPER = buildScrawl({
   seed: 4412,
@@ -47,7 +50,9 @@ export function PlateTulongGuro() {
           <div className="plate__stats">
             {P.stats.map((stat) => (
               <div className="plate__stat" key={stat.label}>
-                <b>{stat.value}</b>
+                <b>
+                  <Tally value={stat.value} />
+                </b>
                 <span className="mono">{stat.label}</span>
               </div>
             ))}
@@ -55,18 +60,21 @@ export function PlateTulongGuro() {
 
           <StackList terms={P.stack} />
 
-          <div className="plate__actions">
-            <a
-              className="link-out link-out--solid"
-              href={P.demo}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open the live demo
-            </a>
-          </div>
+          <PlateLinks links={P.links} />
         </div>
 
+        <Shot
+          src={tulongguro}
+          alt={P.shot.alt}
+          bar={P.shot.bar}
+          fig={P.shot.fig}
+          note={P.shot.note}
+          href={P.demo}
+          sizes="(min-width: 1060px) 48vw, 92vw"
+        />
+      </div>
+
+      <div className="plate__wide">
         <figure className="plate__figure">
           <div className="fig" aria-hidden="true">
             <div className="fig__bar">
@@ -162,9 +170,9 @@ export function PlateTulongGuro() {
           </div>
 
           <figcaption className="fig__cap">
-            <span className="mono">FIG. 01 — TEACHER-APPROVED GRADING LOOP</span>
+            <span className="mono">FIG. 1.2 — TEACHER-APPROVED GRADING LOOP</span>
             <span className="note">
-              An illustration of the interface, not a screenshot of the running
+              A drawing of how the grading loop runs, not a capture of the
               application.
             </span>
           </figcaption>

@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# source material for this build (brief, reference art, resume .docx).
+# The resume contains personal contact details that should not be published —
+# delete this line only if you have checked what is in brief/ first.
+/brief

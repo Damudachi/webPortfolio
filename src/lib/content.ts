@@ -9,7 +9,7 @@ export const SITE = {
   descriptor: "APPLIED AI · SOFTWARE ENGINEERING",
   title: "Aldrich Sabando — Applied AI & Software Engineering",
   description:
-    "AI/ML-focused developer working across multimodal AI, computer vision, and full-stack systems. Selected work: TulongGuro, LiturgyGen, INTELSY.",
+    "Developer working across multimodal AI, computer vision, full-stack systems, and the pipelines that keep them running. Selected work: TulongGuro, LiturgyGen, INTELSY.",
   location: "Pampanga, Philippines",
   year: new Date().getFullYear(),
 };
@@ -36,22 +36,61 @@ export const NAV = [
 export const CAPTURED = "11 OCT 2026";
 
 export const HERO = {
-  eyebrow: "COMPUTER SCIENCE · HOLY ANGEL UNIVERSITY · PHILIPPINES",
-  headline: ["I build systems that turn", "complex inputs into", "useful outcomes."],
+  // "· PHILIPPINES" comes off: the colophon says where, and this line now
+  // sets in the sentence column rather than across the whole sheet.
+  eyebrow: "COMPUTER SCIENCE · HOLY ANGEL UNIVERSITY",
+  // The same sentence, re-broken for the narrower column it now sets in.
+  // The spans are hints — if one overruns it wraps and the sheet still holds.
+  headline: ["I build systems", "that turn complex", "inputs into useful", "outcomes."],
   support:
-    "AI/ML-focused developer working across multimodal AI, computer vision, and full-stack systems.",
-  availability: "OPEN TO AI/ML ENGINEERING INTERNSHIPS",
-  annotations: ["BUILD", "TEST", "ITERATE"],
+    "Developer working across multimodal AI, computer vision, full-stack systems, and the pipelines that keep them running.",
+  // Tracked-out mono, for the contact rail. The colophon states the same
+  // thing in sentence case; see HERO_SPEC.
+  availability: "OPEN TO IT INTERNSHIPS · SOFTWARE · FULL-STACK · DEVOPS · AI/ML",
 };
 
-export const FACTS = [
-  { value: "50%", label: "less grading time", source: "Reported across the TulongGuro pilot" },
-  { value: "10", label: "pilot teachers", source: "TulongGuro classroom pilot" },
-  { value: "90+", label: "automated tests", source: "LiturgyGen generation pipeline" },
+/** What this sheet is, stated in the margin the way every plate states itself. */
+export const HERO_SHEET = {
+  plate: "PLATE 00",
+  label: "FRONTISPIECE",
+  marks: [
+    { k: "SHEET", v: "01 OF 08" },
+    { k: "SET", v: CAPTURED },
+    { k: "EXPOSURES", v: "02" },
+  ],
+  hint: "Point at the plate to turn the exposure. Every figure below is keyed the same way.",
+};
+
+/**
+ * The three readings this page can prove, set as a key rather than a stats
+ * bar. Each row opens the plate that proves it, so the first evidence a
+ * reader meets is not an assertion. The figures are unchanged.
+ */
+export const HERO_KEY = [
+  { n: 1, value: "50% less grading time", source: "TULONGGURO PILOT", href: "#tulongguro" },
+  { n: 2, value: "10 pilot teachers", source: "CLASSROOM PILOT", href: "#tulongguro" },
+  { n: 3, value: "90+ automated tests", source: "LITURGYGEN PIPELINE", href: "#liturgygen" },
 ];
 
-export const FACTS_NOTE =
-  "Each figure comes from that project alone — they are not results of one shared experiment.";
+/**
+ * The colophon that closes the opening sheet. Every value here already
+ * existed on the page, three to seven screens down — which is no use to a
+ * reader whose only question is what he wants, when he is free and how to
+ * reach him.
+ */
+export const HERO_SPEC = {
+  reachHref: `mailto:${LINKS.email}`,
+  rows: [
+    {
+      k: "OPEN TO",
+      v: "IT internships — software engineering, full-stack, DevOps, AI/ML",
+      live: true,
+    },
+    { k: "BASED IN", v: "Pampanga, Philippines" },
+    { k: "GRADUATING", v: "April 2027 · B.S. Computer Science, Holy Angel University" },
+    { k: "REACH", v: LINKS.email, href: `mailto:${LINKS.email}`, go: "Write" },
+  ],
+};
 
 export type LegendItem = { n: number; title: string; body: string };
 
@@ -251,13 +290,14 @@ export const PROFILE_LEAD =
   "Most of this was built while studying — for a thesis, for a campus office, and with a team. The constraint never changed: it has to hold up for the person who actually has to use it.";
 
 export const PORTRAIT = {
+  bar: "PLATE 00",
   fig: "FIG. 00 — THE AUTHOR",
   alt: "Aldrich Sabando, in a dark suit and tie, facing the camera.",
   states: [
     { key: "smile", label: "At ease", hint: "Resting state" },
     { key: "shades", label: "On task", hint: "Hover, or wait ten seconds" },
   ],
-  note: "The plate arrives as samples and resolves into the photograph. Two exposures of one sitting; it turns over every ten seconds, and pointing at it holds the second.",
+  note: "Two exposures of one sitting, registered to the same crop.",
 };
 
 export const EXPERIENCE = [
@@ -464,7 +504,7 @@ export const CREDENTIALS: {
 export const CONTACT = {
   headline: "Let’s build something useful.",
   support:
-    "Open to conversations about applied AI, computer vision, automation, and AI/ML engineering internships.",
+    "Open to IT internships of any kind — software engineering, full-stack, DevOps, and AI/ML engineering are where I am strongest.",
   channels: [
     { label: "Email", value: LINKS.email, href: `mailto:${LINKS.email}`, go: "Write" },
     { label: "GitHub", value: LINKS.githubHandle, href: LINKS.github, go: "Open" },

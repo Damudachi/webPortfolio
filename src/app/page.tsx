@@ -8,7 +8,6 @@ import { Principles } from "@/components/Principles";
 import { Profile } from "@/components/Profile";
 import { SelectedWork } from "@/components/SelectedWork";
 import { StackCreds } from "@/components/StackCreds";
-import { SystemFacts } from "@/components/SystemFacts";
 
 export default function Page() {
   return (
@@ -19,7 +18,6 @@ export default function Page() {
       <Masthead />
       <main id="top" tabIndex={-1}>
         <Hero />
-        <SystemFacts />
         <SelectedWork />
         <Principles />
         <Profile />

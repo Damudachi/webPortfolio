@@ -42,6 +42,16 @@
   --rule-x: calc(var(--rail-w) + var(--rail-gap) / 2);
   --sec-y: clamp(68px, 7.6vw, 124px);
 
+  /* --- the frontispiece ---
+     The plate's width and the sentence's size trade against each other: at
+     1440 these put FIG. 00 well clear of the fold and land the colophon's
+     last row on a 980px-tall screen. --t-hero is one step below --t-h1
+     because the sentence now sets beside the plate rather than across the
+     whole sheet, so it holds four short lines instead of three long ones. */
+  --hero-plate: clamp(236px, 22vw, 336px);
+  --hero-gap: clamp(32px, 3.2vw, 48px);
+  --t-hero: clamp(2.125rem, 0.55rem + 3.3vw, 3.5rem);
+
   --hair: 1px solid var(--color-rule);
   --hair-soft: 1px solid color-mix(in srgb, var(--color-rule) 55%, transparent);
 
@@ -77,6 +87,27 @@ body {
   outline: 1px solid var(--color-silver);
   outline-offset: 3px;
   border-radius: 1px;
+}
+
+/* --- the two properties the whole opening runs on ---
+
+   `--fill` is where the reading head is, as a percentage of whatever it is
+   crossing. Every band, every join and the head itself read it, so the head
+   sits on the boundary by construction rather than by two animations
+   happening to agree about it. `--wdth` is the focus: Archivo is loaded with
+   its width axis (see layout.tsx `axes: ["wdth"]`), so the type can open
+   from compressed to its set width behind the head. */
+
+@property --fill {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 0%;
+}
+
+@property --wdth {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 112%;
 }
 
 /* ---------------- layout primitives ---------------- */
@@ -559,28 +590,32 @@ main:focus {
   }
 }
 
-/* ---------------- hero ---------------- */
+/* ---------------- hero: the frontispiece ----------------
+
+   One plate, two columns, closed by a single rule. The sentence sets in the
+   left column and the author's plate stands beside it from the first row, so
+   the two register at the top instead of stacking — which is what buys the
+   room for the key and the colophon. The measured readings sit under the
+   lede, where they are read; the sheet is closed by a colophon that runs the
+   full width of the column.
+   ============================================================ */
 
 .hero {
-  padding-block: clamp(52px, 7vw, 104px) clamp(56px, 7vw, 108px);
+  padding-block: clamp(36px, 4.6vw, 66px) clamp(28px, 3.4vw, 48px);
 }
 
-.hero__grid {
+.hero__sheet {
   display: grid;
-  gap: clamp(36px, 4vw, 52px);
-  margin-top: clamp(30px, 3.2vw, 46px);
+  gap: clamp(24px, 2.8vw, 34px);
   align-items: start;
 }
 
-@media (min-width: 1060px) {
-  .hero__grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.76fr);
-    gap: clamp(40px, 4vw, 64px);
-  }
+.hero__eyebrow {
+  margin-bottom: 0;
 }
 
-.hero__eyebrow {
-  margin-bottom: clamp(18px, 2.2vw, 28px);
+.hero__h1 {
+  font-size: var(--t-hero);
 }
 
 .hero__h1 .h1-line,
@@ -595,69 +630,269 @@ main:focus {
   }
 }
 
-/* --- the page-load sequence ---
-   Marks in the margin, then the sentence a line at a time, then everything
-   it rests on, and only then the field. It runs once and never again. */
-
-[data-motion] .hero__eyebrow,
-[data-motion] .hero__say > *,
-[data-motion] .hero__annot .mono,
-[data-motion] .hero__plate,
-[data-motion] .hero__plate .portrait__read,
-[data-motion] .hero__plate .fig__cap {
-  opacity: 0;
-  animation: set-in 720ms ease forwards;
-  animation-delay: var(--at, 0ms);
+.hero__say {
+  display: flex;
+  flex-direction: column;
 }
 
-[data-motion] .hero__eyebrow {
-  --at: 120ms;
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  /* The one line that kills the dead area: whatever the viewport, the CTA row
+     is pushed to the bottom of its cell, so the sentence column and the plate
+     column bottom out together and the rule below them reads as a rule across
+     a plate rather than a border under a short column. */
+  margin-top: auto;
+  padding-top: clamp(26px, 3vw, 38px);
 }
 
-[data-motion] .hero__annot .mono {
-  --at: calc(300ms + var(--i, 0) * 70ms);
+.hero__plate {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  justify-self: start;
 }
 
-[data-motion] .hero__say > .lede {
-  --at: 560ms;
-}
-
-[data-motion] .hero__cta {
-  --at: 650ms;
-}
-
-[data-motion] .hero__status {
-  --at: 730ms;
-}
-
-[data-motion] .hero__plate {
-  --at: 820ms;
-}
-
-/* the read-out and the caption land only once the face has resolved */
-[data-motion] .hero__plate .portrait__read {
-  --at: 1960ms;
-}
-
-[data-motion] .hero__plate .fig__cap {
-  --at: 2040ms;
-}
-
-[data-motion] .hero__h1 {
-  clip-path: inset(105% 0 -25% 0);
-  animation: wipe-in 900ms cubic-bezier(0.22, 0.75, 0.25, 1) 220ms forwards;
-}
-
-@media (min-width: 680px) {
-  [data-motion] .hero__h1 {
-    clip-path: none;
-    animation: none;
+@media (min-width: 1060px) {
+  .hero__sheet {
+    grid-template-columns: minmax(0, 1fr) var(--hero-plate);
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "brow  plate"
+      "head  plate"
+      "say   plate"
+      "spec  spec";
+    column-gap: var(--hero-gap);
+    row-gap: clamp(18px, 2vw, 26px);
   }
 
-  [data-motion] .hero__h1 .h1-line__ink {
-    clip-path: inset(105% 0 -25% 0);
-    animation: wipe-in 860ms cubic-bezier(0.22, 0.75, 0.25, 1) forwards;
-    animation-delay: calc(220ms + var(--i, 0) * 95ms);
+  .hero__eyebrow {
+    grid-area: brow;
+  }
+
+  .hero__h1 {
+    grid-area: head;
+  }
+
+  .hero__say {
+    grid-area: say;
+  }
+
+  .hero__spec {
+    grid-area: spec;
+  }
+
+  .hero__plate {
+    grid-area: plate;
+    max-width: none;
+    justify-self: end;
+    /* The plate must not stretch when the sentence column is the taller of
+       the two: its slack belongs below the caption, not inside the figure. */
+    align-self: start;
+  }
+}
+
+/* --- the margin: what this sheet is, measured --- */
+
+.hero__marks,
+.hero__hint {
+  display: none;
+}
+
+@media (min-width: 940px) {
+  .hero__marks {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+  }
+
+  .hero__marks > span {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 5px;
+    border-bottom: var(--hair-soft);
+  }
+
+  .hero__marks b {
+    font-weight: 400;
+    color: var(--color-silver);
+  }
+
+  .hero__hint {
+    display: block;
+    margin-top: 16px;
+  }
+}
+
+/* --- the key: three readings, each keyed to the plate that proves it --- */
+
+.hero__key {
+  display: grid;
+  margin-top: clamp(22px, 2.4vw, 30px);
+  padding-left: 0;
+  border-top: var(--hair-soft);
+  list-style: none;
+}
+
+.hero__key a {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 3px 13px;
+  padding: 10px 0;
+  border-bottom: var(--hair-soft);
+  text-decoration: none;
+  color: var(--color-mute);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+@media (min-width: 560px) {
+  .hero__key a {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    gap: 0 13px;
+  }
+}
+
+.hero__key a:hover,
+.hero__key a:focus-visible {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-silver) 4%, transparent);
+}
+
+.hero__key b {
+  font-size: var(--t-body);
+  font-weight: 550;
+  letter-spacing: -0.008em;
+  color: var(--color-text);
+}
+
+/* the same mark the plates' own keys use, so the hero reads as their key too */
+.hero__key a:hover .legend__n,
+.hero__key a:focus-visible .legend__n {
+  border-color: var(--color-silver);
+  background: var(--color-silver);
+  color: var(--color-ink);
+}
+
+/* --- the colophon: what a reader with an internship to fill came for --- */
+
+.hero__spec {
+  display: grid;
+  margin-top: clamp(26px, 2.8vw, 40px);
+  border-top: var(--hair);
+  padding-top: clamp(22px, 2.4vw, 32px);
+}
+
+@media (min-width: 1060px) {
+  .hero__spec {
+    margin-top: clamp(14px, 1.4vw, 20px);
+  }
+}
+
+.hero__spec > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px 24px;
+  padding: 11px 0;
+  border-bottom: var(--hair-soft);
+  align-items: baseline;
+}
+
+@media (min-width: 720px) {
+  .hero__spec > div {
+    grid-template-columns: 158px minmax(0, 1fr) auto;
+    gap: 0 24px;
+  }
+}
+
+.hero__spec dt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* the live mark off the old status line, now on one row only */
+.hero__spec dt i {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-silver);
+}
+
+.hero__spec dd {
+  margin: 0;
+  font-size: var(--t-small);
+  color: var(--color-silver);
+}
+
+.hero__go {
+  font-size: var(--t-micro);
+  color: var(--color-mute);
+}
+
+/* ---------------- the page-load sequence: ONE PASS ----------------
+
+   The hero does not assemble itself out of parts that fade in. Everything
+   that will resolve is painted at first paint, sampled: the sentence as a
+   lattice of dots of itself, the photograph as a lattice of dots of itself,
+   at the same pitch — one screen across both columns. Then a reading head
+   crosses the eyebrow, carries over the gutter on a drawn tick, and runs
+   down both columns at once: left to right along each line of the sentence,
+   top to bottom down the plate, turning samples into ink as it passes and
+   letting the headline's width axis open behind it.
+
+   Complex inputs ahead of the head, useful outcomes behind it. It runs once
+   and never again.
+   ============================================================ */
+
+@keyframes resolve {
+  to {
+    --fill: 100%;
+  }
+}
+
+/* the sentence coming into focus behind the head, not appearing */
+@keyframes focus {
+  from {
+    --wdth: 76%;
+  }
+}
+
+@keyframes head-live {
+  0% {
+    opacity: 0;
+  }
+  5%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tick-in {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* the frame answering the head's arrival, then handing the border back to
+   the stylesheet: no fill-mode, and the last keyframe is the base value, so
+   there is nothing to snap back from and hover still works afterwards */
+@keyframes plate-live {
+  0% {
+    border-color: var(--color-rule);
+  }
+  5%,
+  88% {
+    border-color: color-mix(in srgb, var(--color-silver) 70%, transparent);
+  }
+  100% {
+    border-color: var(--color-rule);
   }
 }
 
@@ -667,124 +902,240 @@ main:focus {
   }
 }
 
-@keyframes wipe-in {
-  to {
-    clip-path: inset(-25% 0 -25% 0);
+/* --- the one timeline ---
+   Every pass shares an ease and a speed, so the head reads as one object
+   crossing a sheet rather than four effects that happen to be staggered. */
+
+[data-motion] .hero {
+  --ease-head: cubic-bezier(0.3, 0.05, 0.2, 1);
+  --head: 15px;
+  --pitch: 9px;
+  --head-stops:
+    transparent 0,
+    color-mix(in srgb, var(--color-silver) 10%, transparent) 3px,
+    color-mix(in srgb, var(--color-silver) 10%, transparent) calc(var(--head) - 2px),
+    color-mix(in srgb, var(--color-silver) 90%, transparent) calc(var(--head) - 2px);
+
+  --t-brow: 100ms;
+  --dur-pass: 300ms;
+  --t-line: 440ms;
+  --t-step: 270ms;
+  --dur-h1: 620ms;
+  --t-tick: 380ms;
+  --t-plate: 500ms;
+  --dur-plate: 1200ms;
+  --t-say: 820ms;
+}
+
+/* Stacked, the plate follows the sentence instead of standing beside it, so
+   the head reaches it later and has less ground to cover. */
+@media (max-width: 1059.98px) {
+  [data-motion] .hero {
+    --t-plate: 1180ms;
+    --dur-plate: 900ms;
   }
 }
 
-.hero__cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
-}
-
-.hero__status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 26px;
-}
-
-.hero__status i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-silver);
-  flex: none;
-}
-
-.hero__annot {
-  display: none;
-}
-
-@media (min-width: 940px) {
-  .hero__annot {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    padding-top: 6px;
-  }
-
-  .hero__annot b {
-    font-weight: 400;
-    color: var(--color-silver);
+@media (max-width: 679.98px) {
+  [data-motion] .hero {
+    --t-plate: 1120ms;
+    --dur-plate: 800ms;
+    --t-say: 760ms;
   }
 }
 
-.hero__plate {
+/* --- what simply arrives, still staged off --at ---
+   The plate is deliberately not in this list: it is painted from the first
+   frame, as grain, and resolved by the head like everything else. */
+
+[data-motion] .hero__say > *,
+[data-motion] .hero__spec,
+[data-motion] .hero__marks > span,
+[data-motion] .hero__hint,
+[data-motion] .hero__plate .portrait__reg,
+[data-motion] .hero__plate .portrait__read,
+[data-motion] .hero__plate .fig__cap {
+  opacity: 0;
+  animation: set-in 520ms ease forwards;
+  animation-delay: var(--at, 0ms);
+}
+
+[data-motion] .hero__marks > span {
+  --at: calc(300ms + var(--i, 0) * 70ms);
+}
+
+[data-motion] .hero__hint {
+  --at: 520ms;
+}
+
+[data-motion] .hero__say > .lede {
+  --at: var(--t-say);
+}
+
+[data-motion] .hero__key {
+  --at: calc(var(--t-say) + 100ms);
+}
+
+[data-motion] .hero__cta {
+  --at: calc(var(--t-say) + 220ms);
+}
+
+[data-motion] .hero__spec {
+  --at: calc(var(--t-say) + 320ms);
+}
+
+/* the register marks when the head arrives at the plate; the read-out and
+   the caption only once the face is whole */
+[data-motion] .hero__plate .portrait__reg {
+  --at: var(--t-plate);
+}
+
+[data-motion] .hero__plate .portrait__read {
+  --at: calc(var(--t-plate) + var(--dur-plate) + 40ms);
+}
+
+[data-motion] .hero__plate .fig__cap {
+  --at: calc(var(--t-plate) + var(--dur-plate) + 100ms);
+}
+
+/* --- the head ---
+   One object, declared once as a set of stops and pointed in whichever
+   direction it happens to be travelling. The plate's head further down the
+   file is the same thing turned ninety degrees. */
+
+[data-motion] .hero__eyebrow,
+[data-motion] .hero__h1,
+[data-motion] .hero__h1 .h1-line {
   position: relative;
-  justify-self: start;
-  width: 100%;
-  max-width: 380px;
-  /* Stacked, the plate comes straight after the sentence rather than after
-     everything resting on it, so the face is still near the top on a phone. */
-  order: -1;
 }
 
+[data-motion] .hero__eyebrow::after,
+[data-motion] .hero__h1 .h1-line::after {
+  content: "";
+  position: absolute;
+  top: -0.08em;
+  bottom: -0.08em;
+  left: var(--fill);
+  width: var(--head);
+  margin-left: calc(var(--head) * -1);
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to right, var(--head-stops));
+}
+
+/* pass 00 — the eyebrow. Mono labels are machine-set, so they wipe rather
+   than resolve: a band and the head, no lattice. A 9px screen would eat
+   11px type alive. */
+[data-motion] .hero__eyebrow {
+  mask-image: linear-gradient(to right, #000, #000);
+  mask-repeat: no-repeat;
+  mask-position: left top;
+  mask-size: var(--fill) 100%;
+  animation: resolve var(--dur-pass) var(--ease-head) var(--t-brow) forwards;
+}
+
+[data-motion] .hero__eyebrow::after {
+  animation: head-live var(--dur-pass) linear var(--t-brow) forwards;
+}
+
+/* --- the sentence, a line at a time --- */
+
+@media (min-width: 680px) {
+  [data-motion] .hero__h1 .h1-line {
+    /* a flow root, so the ink's negative margins below cannot collapse out
+       through the line and shift the whole headline */
+    display: flow-root;
+    --at-pass: calc(var(--t-line) + var(--i, 0) * var(--t-step));
+    font-stretch: var(--wdth);
+    animation:
+      resolve var(--dur-pass) var(--ease-head) var(--at-pass) forwards,
+      focus var(--dur-pass) var(--ease-head) var(--at-pass) forwards;
+  }
+
+  [data-motion] .hero__h1 .h1-line::after {
+    animation: head-live var(--dur-pass) linear var(--at-pass) forwards;
+  }
+}
+
+@supports (mask-composite: add) {
+  @media (min-width: 680px) {
+    [data-motion] .hero__h1 .h1-line__ink {
+      /* The padding pushes the mask's box past the ink that a 0.96 line
+         height lets overflow it, and the negative margin gives the space
+         back, so masking a line does not shave its own caps and descenders. */
+      padding-block: 0.24em;
+      margin-block: -0.24em;
+      mask-image:
+        linear-gradient(to right, #000, #000),
+        radial-gradient(circle at 50% 50%, #000 0 2.3px, transparent 3px);
+      mask-repeat: no-repeat, repeat;
+      /* one continuous screen down all four lines, rather than four grids
+         each phased to its own box — 0.96em is the line advance */
+      mask-position: left top, left calc(var(--i, 0) * -0.96em);
+      mask-size: var(--fill) 100%, var(--pitch) var(--pitch);
+      mask-composite: add;
+    }
+  }
+}
+
+/* --- the same event at phone width ---
+   The lines run inline here, and an inline box is no place for a mask, so
+   the sentence takes one pass instead of four and the head lies across it:
+   on a phone the whole hero is a single head travelling down the page. */
+
+@media (max-width: 679.98px) {
+  [data-motion] .hero__eyebrow {
+    mask-image: linear-gradient(#000, #000);
+    mask-size: 100% var(--fill);
+  }
+
+  [data-motion] .hero__eyebrow::after,
+  [data-motion] .hero__h1::after {
+    left: 0;
+    right: 0;
+    top: var(--fill);
+    bottom: auto;
+    width: auto;
+    height: var(--head);
+    margin-left: 0;
+    margin-top: calc(var(--head) * -1);
+    background: linear-gradient(to bottom, var(--head-stops));
+  }
+
+  [data-motion] .hero__h1 {
+    clip-path: inset(-25% 0 calc(100% - var(--fill)) 0);
+    animation: resolve var(--dur-h1) var(--ease-head) var(--t-line) forwards;
+  }
+
+  [data-motion] .hero__h1::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    animation: head-live var(--dur-h1) linear var(--t-line) forwards;
+  }
+}
+
+/* --- the head crossing the gutter ---
+   A drawn hairline into the plate's top-left corner, so the handoff between
+   the two columns is a travel and not a cut. */
 @media (min-width: 1060px) {
-  .hero__plate {
-    justify-self: end;
-    order: 0;
+  [data-motion] .hero__plate::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: calc(100% + 1px);
+    width: clamp(22px, 2.6vw, 40px);
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--color-silver) 65%, transparent)
+    );
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    animation: tick-in 120ms linear var(--t-tick) forwards;
   }
-}
-
-/* ---------------- facts strip ---------------- */
-
-.facts {
-  display: grid;
-  gap: 0;
-}
-
-@media (min-width: 720px) {
-  .facts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-.fact {
-  padding: 26px 0;
-  border-top: var(--hair-soft);
-}
-
-.fact:first-child {
-  border-top: 0;
-}
-
-@media (min-width: 720px) {
-  .fact {
-    border-top: 0;
-    border-left: var(--hair-soft);
-    padding: 4px 0 4px 28px;
-  }
-
-  .fact:first-child {
-    border-left: 0;
-    padding-left: 0;
-  }
-}
-
-.fact__n {
-  display: block;
-  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
-  font-weight: 500;
-  font-stretch: 112%;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  color: var(--color-text);
-}
-
-.fact__label {
-  display: block;
-  margin-top: 10px;
-  font-size: var(--t-body);
-  color: var(--color-silver);
-}
-
-.fact__src {
-  display: block;
-  margin-top: 4px;
 }
 
 /* ---------------- plates ---------------- */
@@ -1035,13 +1386,17 @@ main:focus {
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background: var(--color-panel);
-  border: var(--hair);
-  border-radius: 2px;
+}
+
+/* The plate now wears the same chrome as every figure below it, so the rule
+   around it belongs to the .fig, not the frame — otherwise the two stack and
+   the plate gets a two-pixel border, which on this page is a loud mistake. */
+.portrait__fig {
   transition: border-color 0.3s ease;
 }
 
-.portrait__plate:hover .portrait__frame,
-.portrait__plate:focus-visible .portrait__frame {
+.portrait__fig:has(.portrait__plate:hover),
+.portrait__fig:has(.portrait__plate:focus-visible) {
   border-color: var(--color-silver);
 }
 
@@ -1064,20 +1419,29 @@ main:focus {
   display: block;
 }
 
-/* --- the plate resolving out of its own samples, once, on load ---
+/* --- pass 04: the plate, the same head turned ninety degrees ---
 
-   The mask is two layers composited together: a solid band that grows from
-   the top edge downward, and a lattice of dots that is always there. Where
-   the band has arrived the photograph is whole; below it, only the dots come
-   through, so what the reader sees is the picture being sampled rather than
-   a pattern laid over it. A scanning head travels on the join.
+   The mask is two layers composited: a band that reads --fill, and a lattice
+   of dots that is always there, at the same pitch as the screen over the
+   sentence. Where the band has arrived the photograph is whole; ahead of it
+   only the samples come through. The head rides the join because it reads
+   the same property the band does, so the two cannot drift apart.
 
-   Gated on `@supports` as well as `data-motion`: a browser that paints the
-   mask but will not animate `mask-size` would otherwise hold the face at
-   dots forever. */
+   Gated on @supports as well as data-motion: a browser that paints the mask
+   but will not animate it would otherwise hold the face at dots forever. */
+
+.portrait__scan {
+  display: none;
+}
+
 @supports (mask-composite: add) {
+  [data-motion] .portrait__fig {
+    animation:
+      resolve var(--dur-plate) var(--ease-head) var(--t-plate) forwards,
+      plate-live calc(var(--dur-plate) + 420ms) linear var(--t-plate);
+  }
+
   [data-motion] .portrait__sample {
-    --pitch: 9px;
     --dot: 1.1px;
     mask-image:
       linear-gradient(#000, #000),
@@ -1088,54 +1452,22 @@ main:focus {
       );
     mask-repeat: no-repeat, repeat;
     mask-position: top left, top left;
-    mask-size: 100% 0%, var(--pitch) var(--pitch);
+    mask-size: 100% var(--fill), var(--pitch, 9px) var(--pitch, 9px);
     mask-composite: add;
-    animation: portrait-resolve 1060ms cubic-bezier(0.36, 0.08, 0.2, 1) 880ms forwards;
   }
 
-  @keyframes portrait-resolve {
-    to {
-      mask-size: 100% 100%, var(--pitch) var(--pitch);
-    }
-  }
-}
-
-.portrait__scan {
-  display: none;
-}
-
-[data-motion] .portrait__scan {
-  display: block;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 100%;
-  pointer-events: none;
-  opacity: 0;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-silver) 88%, transparent) 0 2px,
-    color-mix(in srgb, var(--color-silver) 13%, transparent) 2px 15px,
-    transparent 15px
-  );
-  animation: portrait-scan 1060ms cubic-bezier(0.36, 0.08, 0.2, 1) 880ms forwards;
-}
-
-@keyframes portrait-scan {
-  0% {
-    transform: translateY(0);
+  [data-motion] .portrait__scan {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--fill);
+    height: var(--head, 15px);
+    margin-top: calc(var(--head, 15px) * -1);
+    pointer-events: none;
     opacity: 0;
-  }
-  7% {
-    opacity: 1;
-  }
-  93% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%);
-    opacity: 0;
+    background: linear-gradient(to bottom, var(--head-stops));
+    animation: head-live var(--dur-plate) linear var(--t-plate) forwards;
   }
 }
 
@@ -1203,8 +1535,7 @@ main:focus {
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  margin-top: 11px;
-  padding-top: 9px;
+  padding: 9px 13px;
   border-top: var(--hair-soft);
 }
 
@@ -2119,24 +2450,39 @@ main:focus {
 
   .hero__eyebrow,
   .hero__say > *,
-  .hero__annot .mono,
+  .hero__spec,
+  .hero__marks > span,
+  .hero__hint,
   .hero__plate,
+  .hero__plate .portrait__reg,
   .hero__plate .portrait__read,
   .hero__plate .fig__cap,
   .hero__h1,
+  .hero__h1 .h1-line,
   .hero__h1 .h1-line__ink {
     clip-path: none;
     opacity: 1;
   }
 
-  /* The plate arrives as the photograph: no samples, no scanning head, no
-     turning over on its own. Pointing at it still swaps the exposure. */
+  /* Nothing above is armed without `data-motion`, which this setting
+     withholds — but if it is ever set anyway, the sheet must still arrive
+     printed rather than stuck at samples. */
+  .hero__eyebrow,
+  .hero__h1 .h1-line__ink,
   .portrait__sample {
     mask-image: none !important;
   }
 
+  .hero__h1 .h1-line {
+    font-stretch: 112% !important;
+  }
+
+  .hero__eyebrow::after,
+  .hero__h1::after,
+  .hero__h1 .h1-line::after,
+  .hero__plate::before,
   .portrait__pass,
   .portrait__scan {
-    display: none;
+    display: none !important;
   }
 }

@@ -1,3 +1,4 @@
+import { Ink } from "./Ink";
 import { CREDENTIALS, LINKS, STACK } from "@/lib/content";
 
 export function StackCreds() {
@@ -13,8 +14,8 @@ export function StackCreds() {
             </div>
 
             <div>
-              <h2 className="h2" data-reveal="wipe" id="stack-heading">
-                What I reach for.
+              <h2 className="h2" data-reveal="resolve" id="stack-heading">
+                <Ink>What I reach for.</Ink>
               </h2>
 
               <div className="stack" style={{ marginTop: "clamp(28px, 3vw, 44px)" }}>
@@ -44,8 +45,8 @@ export function StackCreds() {
             </div>
 
             <div>
-              <h2 className="h2" data-reveal="wipe" id="credentials-heading" style={{ fontSize: "var(--t-title)" }}>
-                Certificates and short courses.
+              <h2 className="h2" data-reveal="resolve" id="credentials-heading" style={{ fontSize: "var(--t-title)" }}>
+                <Ink>Certificates and short courses.</Ink>
               </h2>
 
               <div className="creds" style={{ marginTop: "clamp(22px, 2.4vw, 32px)" }}>

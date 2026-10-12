@@ -1,3 +1,4 @@
+import { Ink } from "./Ink";
 import { EDUCATION, EXPERIENCE, PROFILE_LEAD } from "@/lib/content";
 
 export function Profile() {
@@ -14,10 +15,10 @@ export function Profile() {
 
             <div>
               <div className="profile__lead">
-                <h2 className="h2" data-reveal="wipe" id="experience-heading">
-                  Where the work was done.
+                <h2 className="h2" data-reveal="resolve" id="experience-heading">
+                  <Ink>Where the work was done.</Ink>
                 </h2>
-                <p className="lede" data-reveal="set" style={{ marginTop: 20 }}>
+                <p className="lede" data-reveal="read" style={{ marginTop: 20 }}>
                   {PROFILE_LEAD}
                 </p>
               </div>
@@ -53,10 +54,10 @@ export function Profile() {
 
             <div className="edu">
               <div>
-                <h2 className="h2" data-reveal="wipe" id="education-heading" style={{ fontSize: "var(--t-title)" }}>
-                  {EDUCATION.degree}
+                <h2 className="h2" data-reveal="resolve" id="education-heading" style={{ fontSize: "var(--t-title)" }}>
+                  <Ink>{EDUCATION.degree}</Ink>
                 </h2>
-                <p className="lede" style={{ marginTop: 12 }}>
+                <p className="lede" data-reveal="read" style={{ marginTop: 12 }}>
                   {EDUCATION.school}
                 </p>
                 <p className="prose" style={{ marginTop: 18, fontSize: "var(--t-small)" }}>

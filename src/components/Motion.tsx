@@ -34,7 +34,15 @@ export function Motion() {
       const edge = window.innerHeight * LINE;
       waiting = waiting.filter((node) => {
         const box = node.getBoundingClientRect();
-        if (box.top > edge || box.bottom < 0) return true;
+        /**
+         * Only one test: has this come up past the line yet. Anything that
+         * is already above the window has obviously passed it, and must be
+         * drawn in rather than left waiting — a reader who lands on #contact,
+         * presses End, or restores a scroll position has never watched the
+         * sections in between cross the line, and those sections are hidden
+         * until they are told otherwise. They used to stay hidden for good.
+         */
+        if (box.top > edge) return true;
         node.dataset.seen = "";
         return false;
       });

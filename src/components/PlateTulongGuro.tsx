@@ -44,7 +44,7 @@ export function PlateTulongGuro() {
             </p>
           </div>
 
-          <p className="lede">{P.summary}</p>
+          <p className="lede" data-reveal="read">{P.summary}</p>
           <p className="prose">{P.detail}</p>
 
           <div className="plate__stats">

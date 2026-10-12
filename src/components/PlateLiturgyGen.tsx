@@ -36,7 +36,7 @@ export function PlateLiturgyGen() {
             {P.descriptor}
           </p>
         </div>
-        <p className="lede">{P.summary}</p>
+        <p className="lede" data-reveal="read">{P.summary}</p>
         <PlateLinks links={P.links} note={P.demoNote} />
       </div>
 

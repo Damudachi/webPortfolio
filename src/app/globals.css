@@ -361,23 +361,32 @@ main:focus {
 
 /* ---------------- links ---------------- */
 
+/* Two rules, not one: the standing hairline the link always carries, and a
+   silver one drawn left to right over it under the pointer. Swapping the
+   colour of a single rule said "this is a link"; drawing a second one says
+   the reader is here now, which is the whole language of this page. */
 .link {
   color: var(--color-text);
   text-decoration: none;
-  background-image: linear-gradient(var(--color-rule), var(--color-rule));
-  background-size: 100% 1px;
+  background-image:
+    linear-gradient(var(--color-silver), var(--color-silver)),
+    linear-gradient(var(--color-rule), var(--color-rule));
+  background-size: 0 1px, 100% 1px;
   background-repeat: no-repeat;
-  background-position: 0 100%;
-  transition: background-size 0.25s ease, background-image 0.25s ease, color 0.2s ease;
+  background-position: 0 100%, 0 100%;
+  transition: background-size var(--dur-hv) var(--ease-hv), color 0.2s ease;
   padding-bottom: 2px;
 }
 
 .link:hover,
 .link:focus-visible {
-  background-image: linear-gradient(var(--color-silver), var(--color-silver));
+  background-size: 100% 1px, 100% 1px;
 }
 
 .link-out {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: inline-flex;
   align-items: baseline;
   gap: 0.55em;
@@ -390,13 +399,32 @@ main:focus {
   border: var(--hair);
   padding: 9px 14px;
   border-radius: 2px;
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+/* The fill is drawn across the button rather than faded up underneath it:
+   the same band, the same direction of travel, at button scale. It sits
+   behind the label on its own layer so neither state has to recolour type
+   mid-pass, which is the one thing that would read as a flash. */
+.link-out::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--color-silver) 9%, transparent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--dur-hv) var(--ease-hv);
 }
 
 .link-out:hover,
 .link-out:focus-visible {
   border-color: var(--color-silver);
-  background: color-mix(in srgb, var(--color-silver) 7%, transparent);
+}
+
+.link-out:hover::before,
+.link-out:focus-visible::before {
+  transform: scaleX(1);
 }
 
 .link-out--solid {
@@ -405,9 +433,12 @@ main:focus {
   border-color: var(--color-silver);
 }
 
+.link-out--solid::before {
+  background: #fff;
+}
+
 .link-out--solid:hover,
 .link-out--solid:focus-visible {
-  background: #fff;
   border-color: #fff;
   color: var(--color-ink);
 }
@@ -906,7 +937,11 @@ main:focus {
    Every pass shares an ease and a speed, so the head reads as one object
    crossing a sheet rather than four effects that happen to be staggered. */
 
-[data-motion] .hero {
+/* The head itself is declared once, at the root of the document, because it
+   is one object that appears in several places: the frontispiece, every
+   section heading further down, and any line a reader points at. Only its
+   timings are local. */
+[data-motion] {
   --ease-head: cubic-bezier(0.3, 0.05, 0.2, 1);
   --head: 15px;
   --pitch: 9px;
@@ -915,7 +950,9 @@ main:focus {
     color-mix(in srgb, var(--color-silver) 10%, transparent) 3px,
     color-mix(in srgb, var(--color-silver) 10%, transparent) calc(var(--head) - 2px),
     color-mix(in srgb, var(--color-silver) 90%, transparent) calc(var(--head) - 2px);
+}
 
+[data-motion] .hero {
   --t-brow: 100ms;
   --dur-pass: 300ms;
   --t-line: 440ms;
@@ -2419,6 +2456,319 @@ main:focus {
   background-size: 180px 180px;
 }
 
+/* ---------------- the same pass, further down the book ----------------
+
+   The frontispiece is printed by a reading head crossing it: type is set as
+   a lattice of samples of itself and resolved into ink as the head passes,
+   with Archivo's width axis opening behind it. Every heading below used to
+   wipe up off its own baseline instead, which made the opening read as a
+   trick played once rather than as the way this book is printed.
+
+   So the head runs again at each section, once, as the heading is scrolled
+   to — the same screen at the same pitch, the same ease, the same object. It
+   is slower here than in the hero, because there is one line of it rather
+   than four and nothing else on the screen is moving, and like everything
+   else on this page it never runs twice.
+
+   Two elements per heading (see Ink.tsx): the outer carries the band and the
+   head, the inner carries the screen, because an element cannot both wear a
+   mask and carry a head that rides outside it.
+   ============================================================ */
+
+@property --open {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 108%;
+}
+
+@keyframes open {
+  from {
+    --open: 74%;
+  }
+}
+
+/* the paragraph under it, printed in reading order rather than faded up */
+@keyframes read-in {
+  to {
+    --fill: 124%;
+  }
+}
+
+/* Shrink-wrapped, not column-wide. A heading is usually shorter than the
+   column it sets in, and a head that keeps travelling after the last word
+   has resolved is a head crossing nothing — it has to end on the type. */
+.ink {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.ink__body {
+  display: block;
+}
+
+[data-motion] [data-reveal="resolve"] {
+  --dur-ink: 760ms;
+}
+
+[data-motion] [data-reveal="resolve"] .ink {
+  position: relative;
+  /* The negative margin belongs out here, against the padding the screen
+     wears below, so that the head's box and the screen's box are the same
+     box. They have to be: the head is positioned by the same property the
+     screen is sized by, and a head measured against a shorter box would sit
+     off the join by a fifth of a line. */
+  margin-block: -0.22em;
+}
+
+@supports (mask-composite: add) {
+  [data-motion] [data-reveal="resolve"] .ink__body {
+    /* the hero's trick: push the mask box clear of the caps and descenders
+       that a 1.02 line height lets overflow */
+    padding-block: 0.22em;
+    font-stretch: var(--open);
+    mask-image:
+      linear-gradient(#000, #000),
+      radial-gradient(circle at 50% 50%, #000 0 2.3px, transparent 3px);
+    mask-repeat: no-repeat, repeat;
+    mask-position: left top, left top;
+    mask-size: 100% var(--fill), var(--pitch) var(--pitch);
+    mask-composite: add;
+  }
+
+  /* The head crosses a heading downwards, not along it.
+     A heading is one line at some widths and two at others, and no box can
+     be made to hug the longer of two balanced lines — so a head travelling
+     along one would keep going after the last word at exactly the widths
+     nobody checks. Downwards it crosses whatever is there, in reading
+     order, at every width. It is the same head the plate already wears,
+     turned the same ninety degrees. */
+  [data-motion] [data-reveal="resolve"] .ink::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--fill);
+    height: var(--head);
+    margin-top: calc(var(--head) * -1);
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(to bottom, var(--head-stops));
+  }
+
+  [data-motion] [data-reveal="resolve"][data-seen] .ink {
+    animation: resolve var(--dur-ink) var(--ease-head) var(--stagger) forwards;
+  }
+
+  [data-motion] [data-reveal="resolve"][data-seen] .ink::after {
+    animation: head-live var(--dur-ink) linear var(--stagger) forwards;
+  }
+
+  [data-motion] [data-reveal="resolve"][data-seen] .ink__body {
+    animation: open var(--dur-ink) var(--ease-head) var(--stagger) forwards;
+  }
+}
+
+/* --- the lede, read down rather than switched on ---
+
+   A paragraph is read top to bottom, so it is printed top to bottom: each
+   line emerging from under the one above it through a soft edge, rather than
+   the whole block fading up at once. The edge is feathered by sixteen points
+   of the box, which at these measures is roughly a line and a half — enough
+   that no line is ever caught halfway through arriving. */
+
+[data-motion] [data-reveal="read"] {
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 calc(var(--fill) - 16%),
+    transparent var(--fill)
+  );
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+}
+
+[data-motion] [data-reveal="read"][data-seen] {
+  animation: read-in 920ms var(--ease-head) calc(var(--stagger) + 60ms) forwards;
+}
+
+/* ---------------- the head, pointed at ----------------
+
+   After load the page is printed and still. The one thing that moves again
+   is the reading head, and only where a reader is actually pointing: every
+   hover on this page is that same object coming back for one short pass — a
+   rule ruled under a row, a band drawn across a button, a scan down a
+   capture, the head crossing a line of the sentence. Nothing lifts, nothing
+   scales, nothing bounces, and nothing moves that was not pointed at.
+
+   All of it is a transition rather than an animation wherever it can be, so
+   it reverses out of the way the moment the pointer leaves, and all of it is
+   answered on :focus-visible so a keyboard reads the same page.
+   ============================================================ */
+
+:root {
+  --ease-hv: cubic-bezier(0.3, 0.05, 0.2, 1);
+  --dur-hv: 360ms;
+}
+
+/* --- the ruled row ---
+   Every list on this page is already ruled. Pointing at a row simply draws
+   its rule again, in silver, left to right: a tint was the whole answer
+   before, and a tint alone cannot say which way a reader is going. */
+
+.hero__key a,
+.legend__row,
+.step,
+.channel,
+.cred--go {
+  position: relative;
+}
+
+.hero__key a::after,
+.legend__row::after,
+.step::after,
+.channel::after,
+.cred--go::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--color-silver);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--dur-hv) var(--ease-hv);
+  pointer-events: none;
+}
+
+.hero__key a:hover::after,
+.hero__key a:focus-visible::after,
+.legend__row:hover::after,
+.legend__row:focus-visible::after,
+.legend__row[aria-pressed="true"]::after,
+.step:hover::after,
+.step:focus-visible::after,
+.step[aria-pressed="true"]::after,
+.channel:hover::after,
+.channel:focus-visible::after,
+.cred--go:hover::after,
+.cred--go:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* --- the reading opening its width axis ---
+   The three figures in the hero's key are the only numbers above the fold a
+   reader came to check, so pointing at one opens it the way the headline
+   opened on load. They sit alone in a 1fr cell: nothing else moves. */
+
+.hero__key b {
+  font-stretch: 100%;
+  transition: font-stretch var(--dur-hv) var(--ease-hv);
+}
+
+.hero__key a:hover b,
+.hero__key a:focus-visible b {
+  font-stretch: 118%;
+}
+
+/* --- the capture answering the pointer ---
+   The screenshots already come back to full colour under the pointer. Now a
+   head passes down them as they do, so the colour arrives with something
+   rather than simply being switched on. */
+
+.shot__img {
+  position: relative;
+  overflow: hidden;
+}
+
+.shot__img::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 24%;
+  pointer-events: none;
+  opacity: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-silver) 70%, transparent);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-silver) 13%, transparent)
+  );
+}
+
+[data-motion] .shot__link:hover .shot__img::after,
+[data-motion] .shot__link:focus-visible .shot__img::after {
+  animation: portrait-pass 760ms cubic-bezier(0.4, 0, 0.25, 1);
+}
+
+/* --- the author's plate, measured ---
+   Pointing at the plate already holds the second exposure and brightens the
+   frame. The register marks now open with it, which is what register marks
+   are for: the plate reads as being lined up, not merely lit. */
+
+.portrait__reg::before,
+.portrait__reg::after {
+  transition:
+    width var(--dur-hv) var(--ease-hv),
+    height var(--dur-hv) var(--ease-hv),
+    border-color var(--dur-hv) ease;
+}
+
+.portrait__plate:hover .portrait__reg::before,
+.portrait__plate:hover .portrait__reg::after,
+.portrait__plate:focus-visible .portrait__reg::before,
+.portrait__plate:focus-visible .portrait__reg::after {
+  width: 19px;
+  height: 19px;
+  border-color: color-mix(in srgb, var(--color-silver) 72%, transparent);
+}
+
+/* --- the sentence, pointed at ---
+
+   The one piece of motion here that is neither load nor navigation: point at
+   a line of the headline and the head crosses it once more. It is a glint on
+   its own layer, not a second resolve — the line is already ink and nothing
+   about its setting changes, so there is no reflow to pay for and a cursor
+   dragged across the sentence cannot make it stutter.
+
+   Only where the lines are blocks. Below 680px they run inline, there is no
+   box to cross, and a phone has no pointer to cross it with. */
+
+@keyframes head-pass {
+  from {
+    left: calc(var(--head) * -1);
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@media (min-width: 680px) {
+  [data-motion] .hero__h1 .h1-line::before {
+    content: "";
+    position: absolute;
+    top: -0.08em;
+    bottom: -0.08em;
+    left: calc(var(--head) * -1);
+    width: var(--head);
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(to right, var(--head-stops));
+  }
+
+  [data-motion] .hero__h1 .h1-line:hover::before {
+    animation: head-pass 820ms var(--ease-head);
+  }
+}
+
 /* ---------------- motion preferences ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2469,7 +2819,9 @@ main:focus {
      printed rather than stuck at samples. */
   .hero__eyebrow,
   .hero__h1 .h1-line__ink,
-  .portrait__sample {
+  .portrait__sample,
+  .ink__body,
+  [data-reveal="read"] {
     mask-image: none !important;
   }
 
@@ -2477,10 +2829,17 @@ main:focus {
     font-stretch: 112% !important;
   }
 
+  .ink__body {
+    font-stretch: 108% !important;
+  }
+
   .hero__eyebrow::after,
   .hero__h1::after,
   .hero__h1 .h1-line::after,
+  .hero__h1 .h1-line::before,
   .hero__plate::before,
+  .ink::after,
+  .shot__img::after,
   .portrait__pass,
   .portrait__scan {
     display: none !important;

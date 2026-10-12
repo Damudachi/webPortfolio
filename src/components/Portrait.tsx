@@ -31,23 +31,21 @@ export function Portrait() {
   const [pointed, setPointed] = useState(false);
 
   /**
-   * Read by the timer rather than closed over, so that pointing at the plate
-   * lets a turn pass instead of tearing the timer down and rebuilding it.
-   * Rebuilding it meant a reader whose cursor came to rest anywhere on the
-   * plate stopped the cycle for as long as it stayed there, and the picture
-   * looked broken rather than held.
+   * The clock free-runs. It is deliberately neither torn down, paused, nor
+   * skipped while a reader is pointing at the plate: `serious` below already
+   * pins the second exposure under the pointer, so suppressing the turn
+   * underneath buys nothing and loses the cycle's place.
+   *
+   * Losing it was the bug. A turn skipped while exposure 02 was up left
+   * `ticked` true, so 02 held for twenty seconds instead of ten — and every
+   * further hover across a turn added another ten. The plate read as stuck on
+   * the second face. Letting the clock run means a hover extends the exposure
+   * it is holding by the length of the hover and no more, and the plate drops
+   * back onto the real cycle the moment the pointer leaves.
    */
-  const holding = useRef(false);
-  useEffect(() => {
-    holding.current = pointed || held;
-  }, [pointed, held]);
-
   useEffect(() => {
     if (!document.documentElement.dataset.motion) return;
-    const timer = setInterval(() => {
-      if (holding.current) return;
-      setTicked((on) => !on);
-    }, CYCLE);
+    const timer = setInterval(() => setTicked((on) => !on), CYCLE);
     return () => clearInterval(timer);
   }, []);
 

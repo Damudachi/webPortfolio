@@ -1,3 +1,4 @@
+import { Ink } from "./Ink";
 import { CONTACT, HERO } from "@/lib/content";
 
 export function Contact() {
@@ -13,10 +14,10 @@ export function Contact() {
           </div>
 
           <div>
-            <h2 className="h2 contact__h" data-reveal="wipe" id="contact-heading">
-              {CONTACT.headline}
+            <h2 className="h2 contact__h" data-reveal="resolve" id="contact-heading">
+              <Ink>{CONTACT.headline}</Ink>
             </h2>
-            <p className="lede">{CONTACT.support}</p>
+            <p className="lede" data-reveal="read">{CONTACT.support}</p>
 
             <div className="channels">
               {CONTACT.channels.map((channel) => (

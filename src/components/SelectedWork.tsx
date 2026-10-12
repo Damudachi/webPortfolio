@@ -1,3 +1,4 @@
+import { Ink } from "./Ink";
 import { PlateIntelsy } from "./PlateIntelsy";
 import { PlateLiturgyGen } from "./PlateLiturgyGen";
 import { PlateTulongGuro } from "./PlateTulongGuro";
@@ -16,10 +17,10 @@ export function SelectedWork() {
           </div>
 
           <div>
-            <h2 className="h2" data-reveal="wipe" id="work-heading">
-              Built for real-world friction.
+            <h2 className="h2" data-reveal="resolve" id="work-heading">
+              <Ink>Built for real-world friction.</Ink>
             </h2>
-            <p className="lede" style={{ marginTop: 18 }}>
+            <p className="lede" data-reveal="read" style={{ marginTop: 18 }}>
               Three systems, each drawn with the artifact that actually explains it. Point at a
               line in the key and the drawing will show you where it lives.
             </p>

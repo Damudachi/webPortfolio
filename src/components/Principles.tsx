@@ -1,3 +1,4 @@
+import { Ink } from "./Ink";
 import { PRINCIPLES } from "@/lib/content";
 
 /** Three small diagrams, drawn in the same language as the plates. */
@@ -37,8 +38,8 @@ export function Principles() {
           </div>
 
           <div>
-            <h2 className="h2" data-reveal="wipe" id="principles-heading">
-              Decisions I make before the model does.
+            <h2 className="h2" data-reveal="resolve" id="principles-heading">
+              <Ink>Decisions I make before the model does.</Ink>
             </h2>
 
             <div className="principles" style={{ marginTop: "clamp(28px, 3vw, 44px)" }}>

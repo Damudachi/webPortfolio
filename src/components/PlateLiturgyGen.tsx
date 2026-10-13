@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf } from "./plate-parts";
+import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf, usePressRun } from "./plate-parts";
 import { Shot } from "./Shot";
 import { LITURGYGEN as P } from "@/lib/content";
 import calendar from "@/images/shot-liturgygen-calendar.webp";
@@ -22,7 +21,7 @@ const BODY_LINES = [0.98, 1, 0.94, 1, 0.86, 1, 0.97, 0.72, 0.9];
 const TICKS = Array.from({ length: 90 }, (_, i) => i);
 
 export function PlateLiturgyGen() {
-  const [active, setActive] = useState<number | null>(null);
+  const { active, onActive } = usePressRun(P.legend.length);
   const st = (n: number) => stateOf(active, n);
 
   return (
@@ -279,7 +278,7 @@ export function PlateLiturgyGen() {
           </figcaption>
         </figure>
 
-        <Legend items={P.legend} active={active} onActive={setActive} />
+        <Legend items={P.legend} active={active} onActive={onActive} />
       </div>
 
       <div className="plate__foot">

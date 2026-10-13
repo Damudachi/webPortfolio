@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf } from "./plate-parts";
+import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf, usePressRun } from "./plate-parts";
 import { INTELSY as P } from "@/lib/content";
 
 /** An abstract stand-in for a person on a floor. No faces, no photograph. */
@@ -65,7 +64,7 @@ const ABLATION = [
 ];
 
 export function PlateIntelsy() {
-  const [active, setActive] = useState<number | null>(null);
+  const { active, onActive } = usePressRun(P.legend.length);
   const st = (n: number) => stateOf(active, n);
 
   return (
@@ -84,7 +83,7 @@ export function PlateIntelsy() {
           <p className="lede" data-reveal="read">{P.summary}</p>
           <PlateLinks links={P.links} note={P.teamNote} />
 
-          <Legend items={P.legend} active={active} onActive={setActive} />
+          <Legend items={P.legend} active={active} onActive={onActive} />
           <StackList terms={P.stack} />
         </div>
 

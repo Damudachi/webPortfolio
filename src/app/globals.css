@@ -978,6 +978,8 @@ main:focus {
   --beat-turn: calc(var(--beat) / 2); /* 10s — the plate; = CYCLE in Portrait */
   --beat-breath: calc(var(--beat) / 4); /* 5s — the lattice */
   --beat-tape: calc(var(--beat) * 3); /* 60s — the tape */
+  --beat-say: calc(var(--beat) / 4); /* 5s — one reading in the masthead */
+  --beat-live: calc(var(--beat) / 10); /* 2s — the status dot */
   --head-stops:
     transparent 0,
     color-mix(in srgb, var(--color-silver) 10%, transparent) 3px,
@@ -2803,10 +2805,10 @@ main:focus {
 }
 
 /* ============================================================
-   the loops — one press, three speeds. See --beat above.
+   the loops — one press, five speeds. See --beat above.
    ============================================================ */
 
-/* --- 1 of 3 · the plate's meter: the turn, made visible ---
+/* --- 1 of 5 · the plate's meter: the turn, made visible ---
 
    A ten-second turn with nothing counting it reads as a page that changed
    while the reader was not looking. This fills across the bar and starts
@@ -2858,7 +2860,7 @@ main:focus {
   }
 }
 
-/* --- 2 of 3 · the lattice, breathing ---
+/* --- 2 of 5 · the lattice, breathing ---
 
    The resolve ends with the plate's mask fully open: the samples the head
    worked through are gone and the photograph is just a photograph. This lays
@@ -2900,7 +2902,7 @@ main:focus {
   }
 }
 
-/* --- 3 of 3 · the tape ---
+/* --- 3 of 5 · the tape ---
 
    The slowest loop and the only horizontal one, which is what keeps it out
    of the way of the two passes above. Two identical sets ride in the run, so
@@ -2981,6 +2983,71 @@ main:focus {
   }
   to {
     transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* --- 4 of 5 · the masthead's reading ---
+
+   The one loop a reader cannot scroll past, since the bar is sticky. The
+   span is held at the width of the widest reading — set from the component,
+   in `ch`, which is exact in a mono face — because a line that changes
+   length every five seconds in a fixed bar drags the whole left group about
+   with it. Each turn mounts a new span, so the wipe simply runs again. */
+
+.masthead__descriptor {
+  display: grid;
+}
+
+/* Every reading occupies the same cell, so the box is the width of the
+   widest one and nothing moves when the reading turns. */
+.masthead__say {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.masthead__say[data-on] {
+  visibility: visible;
+}
+
+/* Keyed off the attribute rather than a remount: the span that gains
+   [data-on] begins matching this rule, which is enough to start the wipe
+   again on each turn. */
+[data-motion] .masthead__say[data-on] {
+  animation: say var(--dur-pass, 300ms) var(--ease-head) both;
+}
+
+@keyframes say {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(0.34em);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+/* --- 5 of 5 · the status dot ---
+
+   The 6px circle beside OPEN TO was doing an impression of a status light
+   without being one. This is the shortest loop on the page and it sits next
+   to the only line a reader with an internship to fill came here for. */
+
+[data-motion] .hero__spec dt i {
+  animation: live var(--beat-live) ease-out infinite;
+}
+
+@keyframes live {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-silver) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-silver) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-silver) 0%, transparent);
   }
 }
 
@@ -3068,6 +3135,22 @@ main:focus {
   .portrait__meter,
   .portrait__breath {
     display: none !important;
+  }
+
+  /* The dot keeps its shape and loses its pulse; the masthead keeps whatever
+     reading it was rendered with and never turns, because the interval that
+     turns it never starts without data-motion. Neither needs hiding — unlike
+     the two above, both are legible standing still. */
+  .hero__spec dt i {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+
+  .masthead__say {
+    animation: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 
   /* The tape is the exception, because it is content: stopped, it has to be

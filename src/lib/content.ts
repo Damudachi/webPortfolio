@@ -22,6 +22,21 @@ export const LINKS = {
   linkedinHandle: "linkedin.com/in/aldrich-sabando",
 };
 
+/**
+ * What the masthead says he does, turned over on the beat.
+ *
+ * Four readings of the same person rather than four claims: the first is the
+ * descriptor this site has always carried, and the rest are the words already
+ * set in the description and the colophon. Nothing here is new, which is the
+ * rule for anything that moves on this page.
+ */
+export const MASTHEAD_RUN = [
+  SITE.descriptor,
+  "FULL-STACK · DEVOPS",
+  "COMPUTER VISION · MULTIMODAL AI",
+  "OPEN TO IT INTERNSHIPS",
+];
+
 export const NAV = [
   { id: "work", label: "Work" },
   { id: "profile", label: "Profile" },

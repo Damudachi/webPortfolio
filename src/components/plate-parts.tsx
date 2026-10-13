@@ -1,9 +1,51 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Outward } from "./Outward";
 import type { LegendItem } from "@/lib/content";
 
 export type ZoneState = "on" | "off" | undefined;
+
+/**
+ * One pass over a plate's zones, in the time the frontispiece takes to turn
+ * its exposure. The step is whatever divides that evenly, so a four-zone
+ * diagram advances every 2.5s and a five-zone one every 2s, and either way
+ * the pass lands back on the downbeat with the plate upstairs.
+ */
+const PASS = 10_000;
+
+/**
+ * A diagram that runs itself.
+ *
+ * These sheets could only ever be read by pointing at the legend beside them,
+ * which meant that for a reader who never pointed — most of them — the plate
+ * was a dark still of a pipeline rather than a pipeline. Now the zones light
+ * in order on their own, and the reader takes the sheet off the press the
+ * moment they point at a row: `pointed` simply wins.
+ *
+ * The run is not paused while they are pointing. It is the same argument as
+ * the portrait's clock: the override already holds the zone under the
+ * pointer, so stopping the thing underneath buys nothing and loses the
+ * pass's place, which is what made that plate read as stuck.
+ *
+ * Without `data-motion` the step never starts and `active` stays null, which
+ * is exactly the neutral, nothing-dimmed sheet these plates shipped as.
+ */
+export function usePressRun(count: number) {
+  const [step, setStep] = useState<number | null>(null);
+  const [pointed, setPointed] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!document.documentElement.dataset.motion) return;
+    // No opening setStep: the first tick already yields zone 1, because
+    // ((null ?? 0) % count) + 1 is 1. Setting it synchronously here would
+    // only buy a cascading render and a zone lighting during hydration.
+    const timer = setInterval(() => setStep((n) => ((n ?? 0) % count) + 1), PASS / count);
+    return () => clearInterval(timer);
+  }, [count]);
+
+  return { active: pointed ?? step, onActive: setPointed };
+}
 
 /** Nothing is dimmed until the reader points at something. */
 export function stateOf(active: number | null, n: number): ZoneState {

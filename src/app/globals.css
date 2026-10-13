@@ -52,6 +52,10 @@
   --hero-gap: clamp(32px, 3.2vw, 48px);
   --t-hero: clamp(2.125rem, 0.55rem + 3.3vw, 3.5rem);
 
+  /* The pinned tape, and the room the document gives it back. One token,
+     so the strip and the space under the colophon cannot disagree. */
+  --tape-h: 39px;
+
   --hair: 1px solid var(--color-rule);
   --hair-soft: 1px solid color-mix(in srgb, var(--color-rule) 55%, transparent);
 
@@ -68,6 +72,9 @@ html {
 }
 
 body {
+  /* The tape is pinned over the foot of the window, so the colophon is given
+     its height back — otherwise the last line of the book sits under it. */
+  padding-bottom: var(--tape-h);
   background: var(--color-base);
   color: var(--color-text);
   font-family: var(--font-sans);
@@ -948,17 +955,22 @@ main:focus {
 
   /* --- the press beat ---
 
-     Four things on this page loop, and they are one machine rather than four
-     animations: one period, every loop a whole-number harmonic of it, all of
-     them starting at first paint. Equal starts and harmonic durations put
-     them in phase by construction, so every twenty seconds the whole sheet
-     lands on the same downbeat — and only one of them is ever loud. The
-     plate turns; the lattice under it breathes four times as fast and a
-     tenth as hard; the head crosses the window once; the tape runs across
-     three beats and in the other axis, so it never competes with either
-     vertical pass.
+     Three things on this page loop, and they are one machine rather than
+     three animations: one period, every loop a whole-number harmonic of it,
+     all of them starting at first paint. Equal starts and harmonic durations
+     put them in phase by construction, so every twenty seconds the whole
+     sheet lands on the same downbeat — and only one of them is ever loud.
+     The plate turns; the lattice under it breathes four times as fast and a
+     tenth as hard; the tape runs across three beats and in the other axis,
+     so it never competes with the turn.
 
-     This is deliberately NOT one animated custom property that all four
+     --beat is the unit rather than a duration anything uses directly: a
+     fourth loop that crossed the whole window on it was taken out again,
+     because a line travelling down the page is read as a line travelling
+     down the page, however faint. Anything added here is a whole-number
+     ratio of it and stays inside a plate.
+
+     This is deliberately NOT one animated custom property that all three
      read. An inheriting property animated forever at the root restyles the
      whole subtree every frame — the right price for the one-shot --fill
      resolve, and the wrong one for a loop that never ends. */
@@ -2791,10 +2803,10 @@ main:focus {
 }
 
 /* ============================================================
-   the loops — one press, four speeds. See --beat above.
+   the loops — one press, three speeds. See --beat above.
    ============================================================ */
 
-/* --- 1 of 4 · the plate's meter: the turn, made visible ---
+/* --- 1 of 3 · the plate's meter: the turn, made visible ---
 
    A ten-second turn with nothing counting it reads as a page that changed
    while the reader was not looking. This fills across the bar and starts
@@ -2811,15 +2823,29 @@ main:focus {
   display: none;
 }
 
-[data-motion] .portrait__meter {
-  display: block;
+/* The track the meter fills against. A bright line creeping across a dark
+   bar with no ground behind it reads as nothing at all — the eye needs the
+   distance it is covering to be drawn too. */
+[data-motion] .portrait__fig .fig__bar::after {
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 1px;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-rule) 70%, transparent);
+}
+
+[data-motion] .portrait__meter {
+  display: block;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
   transform-origin: left center;
-  background: color-mix(in srgb, var(--color-silver) 55%, transparent);
+  background: var(--color-silver);
   animation: meter var(--beat-turn) linear infinite;
 }
 
@@ -2832,7 +2858,7 @@ main:focus {
   }
 }
 
-/* --- 2 of 4 · the lattice, breathing ---
+/* --- 2 of 3 · the lattice, breathing ---
 
    The resolve ends with the plate's mask fully open: the samples the head
    worked through are gone and the photograph is just a photograph. This lays
@@ -2857,7 +2883,7 @@ main:focus {
     transparent 1.7px
   );
   background-size: var(--pitch) var(--pitch);
-  opacity: 0.05;
+  opacity: 0.08;
   animation: breathe var(--beat-breath) ease-in-out infinite;
   animation-delay: calc(var(--t-plate, 500ms) + var(--dur-plate, 1200ms));
 }
@@ -2865,74 +2891,16 @@ main:focus {
 @keyframes breathe {
   0%,
   100% {
-    opacity: 0.05;
+    opacity: 0.08;
     background-size: var(--pitch) var(--pitch);
   }
   50% {
-    opacity: 0.1;
-    background-size: calc(var(--pitch) + 0.4px) calc(var(--pitch) + 0.4px);
+    opacity: 0.24;
+    background-size: calc(var(--pitch) + 1.1px) calc(var(--pitch) + 1.1px);
   }
 }
 
-/* --- 3 of 4 · the reading head, kept running ---
-
-   The same head as the frontispiece, on the long beat, crossing the window
-   once per period. The line is the head; the band behind it is the pass,
-   lifting the contrast of whatever it is over at that moment, so the page is
-   being re-printed rather than being slid over. Transform and opacity only,
-   so the sweep itself is composited; the band is the one thing here that
-   costs real work, and it is thirty pixels of a viewport. */
-
-.reader {
-  display: none;
-}
-
-[data-motion] .reader {
-  display: block;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: var(--head, 15px);
-  z-index: 50;
-  pointer-events: none;
-  background: linear-gradient(to bottom, var(--head-stops));
-  animation: reader var(--beat) linear infinite;
-  /* Not over the opening: the hero has its own head for the first two
-     seconds and two of them crossing at once is one too many. */
-  animation-delay: 2s;
-  will-change: transform;
-}
-
-[data-motion] .reader::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 28px;
-  backdrop-filter: contrast(1.06) brightness(1.03);
-  -webkit-backdrop-filter: contrast(1.06) brightness(1.03);
-}
-
-@keyframes reader {
-  0% {
-    transform: translate3d(0, -32px, 0);
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(0, 100vh, 0);
-    opacity: 0;
-  }
-}
-
-/* --- 4 of 4 · the tape ---
+/* --- 3 of 3 · the tape ---
 
    The slowest loop and the only horizontal one, which is what keeps it out
    of the way of the two passes above. Two identical sets ride in the run, so
@@ -2941,15 +2909,32 @@ main:focus {
    has tabbed into it: a line of type that will not hold still cannot be
    read, and the tape is content before it is motion. */
 
+/* Pinned to the foot of the window rather than left at the end of the
+   document. Three loops run on this page and two of them are inside a plate
+   240px wide; this is the one made of words, and a loop a reader has to
+   scroll to the bottom of the book to find is not a loop they will ever see.
+   It sits above the grain and below the masthead, so the sheet is bracketed
+   by the two fixed bars rather than wearing one. */
 .tape {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  height: var(--tape-h);
   overflow: hidden;
   border-top: var(--hair);
-  border-bottom: var(--hair);
   background: var(--color-ink);
 }
 
+/* The run is NOT a flex item of .tape. Making .tape a flex container let the
+   run shrink to the width of the window, and since every token is nowrap the
+   two sets were squeezed on top of each other into one line of nonsense. The
+   run sizes itself to its content and the strip simply clips it. */
 .tape__run {
   display: flex;
+  align-items: center;
+  height: 100%;
   width: max-content;
 }
 
@@ -3076,22 +3061,30 @@ main:focus {
   }
 
   /* --- the loops ---
-     The iteration count above already stops all four after one pass, which
-     for three of them is still one pass too many: a meter counting down to a
-     turn that will not come, a lattice that breathes once, a head that
-     crosses the window and never returns. They simply do not exist here. */
+     The iteration count above already stops all three after one pass, which
+     for two of them is still one pass too many: a meter counting down to a
+     turn that will not come, and a lattice that breathes once. They simply
+     do not exist here. */
   .portrait__meter,
-  .portrait__breath,
-  .reader {
+  .portrait__breath {
     display: none !important;
   }
 
   /* The tape is the exception, because it is content: stopped, it has to be
      readable rather than one line of facts clipped at the edge of the sheet.
      It wraps instead, and the second set — which is the loop mechanism and
-     nothing else — comes off. */
+     nothing else — comes off. Wrapping and pinning cannot both be true: a
+     stopped strip that grows to three lines would cover the foot of the
+     window, so here it goes back into the document at the end of the book. */
+  body {
+    padding-bottom: 0;
+  }
+
   .tape {
+    position: static;
+    height: auto;
     overflow: visible;
+    border-bottom: var(--hair);
   }
 
   .tape__run {

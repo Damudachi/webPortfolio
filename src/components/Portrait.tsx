@@ -6,6 +6,16 @@ import shades from "@/images/portrait-shades.webp";
 import smile from "@/images/portrait-smile.webp";
 import { PORTRAIT } from "@/lib/content";
 
+/**
+ * Half the press beat.
+ *
+ * `--beat` in the stylesheet is 20s and every loop on this page is a harmonic
+ * of it; the plate turns on the second. This constant and `--beat-turn` are
+ * therefore the same number stated in two languages, and they have to stay
+ * that way — the meter in the plate's bar is the visible half of this clock,
+ * and a meter that fills at a different rate than the plate turns is worse
+ * than no meter at all.
+ */
 const CYCLE = 10_000;
 
 /**
@@ -17,9 +27,13 @@ const CYCLE = 10_000;
  * plate and counts the exposures, the frame, a read-out — so the hero
  * announces the book instead of standing apart from it. On load the picture
  * arrives as a lattice of samples of itself and the hero's reading head
- * resolves it; after that it turns over on its own every ten seconds, holds
- * the second exposure while a reader is pointing at it, and can be pinned by
- * click or keyboard.
+ * resolves it; after that it turns over on its own every ten seconds against
+ * a lattice that never quite settles, holds the second exposure while a
+ * reader is pointing at it, and can be pinned for one cycle by click or
+ * keyboard.
+ *
+ * Nothing a reader can do stops the turn for good. That was the bug, twice
+ * over, and both halves of it are documented below.
  *
  * The unattended cycle and the resolve both stop under reduced motion: a
  * picture that changes by itself is exactly what that setting asks us not to
@@ -36,7 +50,7 @@ export function Portrait() {
    * pins the second exposure under the pointer, so suppressing the turn
    * underneath buys nothing and loses the cycle's place.
    *
-   * Losing it was the bug. A turn skipped while exposure 02 was up left
+   * Losing it was the first bug. A turn skipped while exposure 02 was up left
    * `ticked` true, so 02 held for twenty seconds instead of ten — and every
    * further hover across a turn added another ten. The plate read as stuck on
    * the second face. Letting the clock run means a hover extends the exposure
@@ -47,6 +61,42 @@ export function Portrait() {
     if (!document.documentElement.dataset.motion) return;
     const timer = setInterval(() => setTicked((on) => !on), CYCLE);
     return () => clearInterval(timer);
+  }, []);
+
+  /**
+   * The pin releases itself after one full cycle.
+   *
+   * It used to be indefinite, and that was the second bug — the one that
+   * actually froze the face. A click pinned `held`; the same click also
+   * focused the button, and `onFocus` pinned `pointed`; and that focus
+   * outlives the pointer. So one click and a mouse moved away left the plate
+   * on exposure 02 for good, and clicking again cleared only half of it.
+   *
+   * A reader who wants the second exposure now gets a whole cycle of it,
+   * named in the read-out, and then the press takes the plate back.
+   */
+  useEffect(() => {
+    if (!held) return;
+    const release = setTimeout(() => setHeld(false), CYCLE);
+    return () => clearTimeout(release);
+  }, [held]);
+
+  /**
+   * A pointer that leaves without saying so. If the window loses focus or the
+   * tab is hidden while the cursor is resting on the plate, `pointerleave`
+   * never fires — and the cursor may be somewhere else entirely by the time
+   * the reader comes back to a plate still holding 02. Dropping the hold on
+   * the way out costs nothing: if the pointer really is still there, the next
+   * movement over the plate enters again.
+   */
+  useEffect(() => {
+    const drop = () => setPointed(false);
+    window.addEventListener("blur", drop);
+    document.addEventListener("visibilitychange", drop);
+    return () => {
+      window.removeEventListener("blur", drop);
+      document.removeEventListener("visibilitychange", drop);
+    };
   }, []);
 
   const serious = held || pointed || ticked;
@@ -74,16 +124,36 @@ export function Portrait() {
           <span className="mono" aria-hidden="true">
             {`EXP. ${serious ? "02" : "01"} / 02`}
           </span>
+
+          {/* The loop, made visible. Keyed on `ticked` rather than `turn`,
+              because only a turn of the clock should restart it: keyed on
+              `turn`, a hover would reset the meter mid-cycle and the bar
+              would lie about when the next exposure is due. Remounting on
+              every tick is also what keeps it honest over a long sitting —
+              the CSS animation and the interval are re-registered together,
+              so the two cannot drift apart. */}
+          <span className="portrait__meter" key={`turn-${ticked}`} aria-hidden="true" />
         </div>
 
         <button
           type="button"
           className="portrait__plate"
           aria-pressed={held}
-          aria-label={`${PORTRAIT.alt} Press to hold the second exposure.`}
+          aria-label={`${PORTRAIT.alt} Press to hold the second exposure for one cycle.`}
           onPointerEnter={() => setPointed(true)}
           onPointerLeave={() => setPointed(false)}
-          onFocus={() => setPointed(true)}
+          onPointerCancel={() => setPointed(false)}
+          onFocus={(event) => {
+            /**
+             * Only a keyboard focus holds the plate. A mouse click focuses
+             * this button too, and that focus stays behind once the pointer
+             * has gone — which is the half of the freeze that survived
+             * clicking a second time. `:focus-visible` is the browser's own
+             * answer to whether a focus came from the keyboard, and it has
+             * already been decided by the time this fires.
+             */
+            if (event.currentTarget.matches(":focus-visible")) setPointed(true);
+          }}
           onBlur={() => setPointed(false)}
           onClick={() => setHeld((on) => !on)}
         >
@@ -112,6 +182,14 @@ export function Portrait() {
               />
             </span>
 
+            {/* The lattice the plate was printed from, never quite settling.
+                The resolve ends with the mask fully open, so the samples it
+                worked through are gone and the face is simply a photograph
+                again; this lays the screen back over it at a quarter of the
+                beat, at a strength a reader has to look for. The plate is
+                alive between turns rather than waiting for one. */}
+            <span className="portrait__breath" aria-hidden="true" />
+
             <span className="portrait__scan" aria-hidden="true" />
             {turn > 0 ? (
               <span className="portrait__pass" key={turn} aria-hidden="true" />
@@ -121,7 +199,7 @@ export function Portrait() {
 
           <span className="portrait__read">
             <span className="mono">{state.label}</span>
-            <span className="mono">{held ? "Held" : state.hint}</span>
+            <span className="mono">{held ? PORTRAIT.pinned : state.hint}</span>
           </span>
         </button>
       </div>

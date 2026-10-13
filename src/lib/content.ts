@@ -92,6 +92,21 @@ export const HERO_SPEC = {
   ],
 };
 
+/**
+ * The tape that runs above the colophon.
+ *
+ * Nothing here is new. Each token is the shortest true form of something the
+ * key or the colophon above already says, derived from those arrays rather
+ * than written out again, so the strip cannot be left quoting a figure the
+ * page has since corrected.
+ */
+export const TAPE = [
+  HERO.availability,
+  ...HERO_KEY.map((row) => `${row.source} · ${row.value.toUpperCase()}`),
+  `BASED IN ${SITE.location.toUpperCase()}`,
+  `REACH · ${LINKS.email}`,
+];
+
 export type LegendItem = { n: number; title: string; body: string };
 
 export const TULONGGURO = {
@@ -291,6 +306,10 @@ export const PROFILE_LEAD =
 
 export const PORTRAIT = {
   bar: "PLATE 00",
+  // What the read-out says while a reader has the plate pinned. It names the
+  // length of the pin because the pin is temporary by design: an indefinite
+  // one is what used to leave the face stuck on the second exposure.
+  pinned: "Pinned · one cycle",
   fig: "FIG. 00 — THE AUTHOR",
   alt: "Aldrich Sabando, in a dark suit and tie, facing the camera.",
   states: [

@@ -945,6 +945,27 @@ main:focus {
   --ease-head: cubic-bezier(0.3, 0.05, 0.2, 1);
   --head: 15px;
   --pitch: 9px;
+
+  /* --- the press beat ---
+
+     Four things on this page loop, and they are one machine rather than four
+     animations: one period, every loop a whole-number harmonic of it, all of
+     them starting at first paint. Equal starts and harmonic durations put
+     them in phase by construction, so every twenty seconds the whole sheet
+     lands on the same downbeat — and only one of them is ever loud. The
+     plate turns; the lattice under it breathes four times as fast and a
+     tenth as hard; the head crosses the window once; the tape runs across
+     three beats and in the other axis, so it never competes with either
+     vertical pass.
+
+     This is deliberately NOT one animated custom property that all four
+     read. An inheriting property animated forever at the root restyles the
+     whole subtree every frame — the right price for the one-shot --fill
+     resolve, and the wrong one for a loop that never ends. */
+  --beat: 20s;
+  --beat-turn: calc(var(--beat) / 2); /* 10s — the plate; = CYCLE in Portrait */
+  --beat-breath: calc(var(--beat) / 4); /* 5s — the lattice */
+  --beat-tape: calc(var(--beat) * 3); /* 60s — the tape */
   --head-stops:
     transparent 0,
     color-mix(in srgb, var(--color-silver) 10%, transparent) 3px,
@@ -2769,6 +2790,215 @@ main:focus {
   }
 }
 
+/* ============================================================
+   the loops — one press, four speeds. See --beat above.
+   ============================================================ */
+
+/* --- 1 of 4 · the plate's meter: the turn, made visible ---
+
+   A ten-second turn with nothing counting it reads as a page that changed
+   while the reader was not looking. This fills across the bar and starts
+   over on each tick, so the next exposure is something that can be seen
+   coming. It is scaled rather than widened: a transform is composited, a
+   width is a layout pass every frame, and this runs the whole time the page
+   is open. The bar has to be a containing block for it, which it was not. */
+
+.portrait__fig .fig__bar {
+  position: relative;
+}
+
+.portrait__meter {
+  display: none;
+}
+
+[data-motion] .portrait__meter {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  transform-origin: left center;
+  background: color-mix(in srgb, var(--color-silver) 55%, transparent);
+  animation: meter var(--beat-turn) linear infinite;
+}
+
+@keyframes meter {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* --- 2 of 4 · the lattice, breathing ---
+
+   The resolve ends with the plate's mask fully open: the samples the head
+   worked through are gone and the photograph is just a photograph. This lays
+   the same screen back over it — the pitch of the mask, the pitch of the
+   screen over the sentence — and breathes it on a quarter beat. Enough that
+   the face is never quite a still; not enough to read as an effect. It waits
+   for the resolve to finish rather than printing a second lattice over the
+   one the head is already working through. */
+
+.portrait__breath {
+  display: none;
+}
+
+[data-motion] .portrait__breath {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--color-ink) 60%, transparent) 0 1px,
+    transparent 1.7px
+  );
+  background-size: var(--pitch) var(--pitch);
+  opacity: 0.05;
+  animation: breathe var(--beat-breath) ease-in-out infinite;
+  animation-delay: calc(var(--t-plate, 500ms) + var(--dur-plate, 1200ms));
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.05;
+    background-size: var(--pitch) var(--pitch);
+  }
+  50% {
+    opacity: 0.1;
+    background-size: calc(var(--pitch) + 0.4px) calc(var(--pitch) + 0.4px);
+  }
+}
+
+/* --- 3 of 4 · the reading head, kept running ---
+
+   The same head as the frontispiece, on the long beat, crossing the window
+   once per period. The line is the head; the band behind it is the pass,
+   lifting the contrast of whatever it is over at that moment, so the page is
+   being re-printed rather than being slid over. Transform and opacity only,
+   so the sweep itself is composited; the band is the one thing here that
+   costs real work, and it is thirty pixels of a viewport. */
+
+.reader {
+  display: none;
+}
+
+[data-motion] .reader {
+  display: block;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--head, 15px);
+  z-index: 50;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--head-stops));
+  animation: reader var(--beat) linear infinite;
+  /* Not over the opening: the hero has its own head for the first two
+     seconds and two of them crossing at once is one too many. */
+  animation-delay: 2s;
+  will-change: transform;
+}
+
+[data-motion] .reader::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28px;
+  backdrop-filter: contrast(1.06) brightness(1.03);
+  -webkit-backdrop-filter: contrast(1.06) brightness(1.03);
+}
+
+@keyframes reader {
+  0% {
+    transform: translate3d(0, -32px, 0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 100vh, 0);
+    opacity: 0;
+  }
+}
+
+/* --- 4 of 4 · the tape ---
+
+   The slowest loop and the only horizontal one, which is what keeps it out
+   of the way of the two passes above. Two identical sets ride in the run, so
+   moving the run by exactly half its own width starts the strip over with
+   nothing to see at the join. It stops while a reader is pointing at it or
+   has tabbed into it: a line of type that will not hold still cannot be
+   read, and the tape is content before it is motion. */
+
+.tape {
+  overflow: hidden;
+  border-top: var(--hair);
+  border-bottom: var(--hair);
+  background: var(--color-ink);
+}
+
+.tape__run {
+  display: flex;
+  width: max-content;
+}
+
+[data-motion] .tape__run {
+  animation: tape var(--beat-tape) linear infinite;
+}
+
+.tape:hover .tape__run,
+.tape:focus-within .tape__run {
+  animation-play-state: paused;
+}
+
+.tape__set {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tape__set li {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-block: 10px;
+  padding-right: 24px;
+  color: var(--color-mute);
+  white-space: nowrap;
+}
+
+/* The separator is the mark between tokens, not a bullet belonging to the
+   item, so it is drawn rather than set — a character here would be read out
+   between every fact on the strip. */
+.tape__set li::after {
+  content: "";
+  width: 3px;
+  height: 3px;
+  background: color-mix(in srgb, var(--color-silver) 40%, transparent);
+}
+
+@keyframes tape {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 /* ---------------- motion preferences ---------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -2843,5 +3073,37 @@ main:focus {
   .portrait__pass,
   .portrait__scan {
     display: none !important;
+  }
+
+  /* --- the loops ---
+     The iteration count above already stops all four after one pass, which
+     for three of them is still one pass too many: a meter counting down to a
+     turn that will not come, a lattice that breathes once, a head that
+     crosses the window and never returns. They simply do not exist here. */
+  .portrait__meter,
+  .portrait__breath,
+  .reader {
+    display: none !important;
+  }
+
+  /* The tape is the exception, because it is content: stopped, it has to be
+     readable rather than one line of facts clipped at the edge of the sheet.
+     It wraps instead, and the second set — which is the loop mechanism and
+     nothing else — comes off. */
+  .tape {
+    overflow: visible;
+  }
+
+  .tape__run {
+    width: auto;
+    flex-wrap: wrap;
+  }
+
+  .tape__set {
+    flex-wrap: wrap;
+  }
+
+  .tape__set[aria-hidden] {
+    display: none;
   }
 }

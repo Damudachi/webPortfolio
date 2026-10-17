@@ -1,9 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outward } from "./Outward";
 import { Tally } from "./Tally";
-import type { Contribution, LegendItem, Measure } from "@/lib/content";
+import type { CaseNotes as CaseNotesData, Contribution, LegendItem, Measure } from "@/lib/content";
+
+/**
+ * Runs `onHit` whenever the address points at `id`: on arrival, on an
+ * in-page jump, and on a second click of a link already in the address bar,
+ * which fires no `hashchange`. It is what lets a link open a panel that is
+ * closed — the Explore-by-role list points into tabs and folded notes, and a
+ * fragment that lands on a hidden element otherwise does nothing at all.
+ */
+export function useHashTarget(id: string, onHit: () => void) {
+  const hit = useRef(onHit);
+  useEffect(() => {
+    hit.current = onHit;
+  });
+
+  useEffect(() => {
+    const check = () => {
+      if (window.location.hash === `#${id}`) hit.current();
+    };
+    const onClick = (event: MouseEvent) => {
+      const link = (event.target as Element | null)?.closest?.("a");
+      if (link?.getAttribute("href") === `#${id}`) setTimeout(check);
+    };
+    const frame = requestAnimationFrame(check);
+    window.addEventListener("hashchange", check);
+    document.addEventListener("click", onClick);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", check);
+      document.removeEventListener("click", onClick);
+    };
+  }, [id]);
+}
 
 export type ZoneState = "on" | "off" | undefined;
 
@@ -262,5 +294,59 @@ export function ContributionLine({ data }: { data: Contribution }) {
       <p className="contrib__role">{data.role}</p>
       {record ? <p className="mono-plain">{record}</p> : null}
     </div>
+  );
+}
+
+/**
+ * The longer account behind "My part", folded so the plate still reads at a
+ * glance. A team project with no separable record says so in the summary
+ * line, before anyone opens it.
+ */
+export function CaseNotes({ slug, data }: { slug: string; data: CaseNotesData }) {
+  const [open, setOpen] = useState(false);
+  useHashTarget(`${slug}-notes`, () => setOpen(true));
+  const team = data.did.length === 0;
+
+  return (
+    <details
+      className="case"
+      id={`${slug}-notes`}
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
+      <summary className="case__sum">
+        <span className="mono">Case notes</span>
+        <span className="case__hint">
+          {team
+            ? "Team results, one problem, what comes next"
+            : "What I did, one problem I fixed, what I’d change"}
+        </span>
+      </summary>
+
+      <div className="case__body">
+        <p className="mono case__scope">{data.scope}</p>
+        {team ? null : (
+          <ul className="case__did">
+            {data.did.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        )}
+
+        <div className="case__block">
+          <p className="mono">Problem → what changed</p>
+          <p className="case__title">{data.problem.title}</p>
+          <p>{data.problem.body}</p>
+          <a className="link" href={data.problem.href} target="_blank" rel="noopener noreferrer">
+            {data.problem.label}
+          </a>
+        </div>
+
+        <div className="case__block">
+          <p className="mono">Next time</p>
+          <p>{data.next}</p>
+        </div>
+      </div>
+    </details>
   );
 }

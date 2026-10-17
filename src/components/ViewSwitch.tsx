@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { useHashTarget } from "./plate-parts";
 
 const VIEWS = [
   { key: "product", label: "Product", sub: "what it does" },
@@ -20,16 +21,28 @@ type View = (typeof VIEWS)[number]["key"];
  */
 export function ViewSwitch({
   name,
+  slug,
   product,
   engineering,
 }: {
   name: string;
+  /** Names the panels `{slug}-product` and `{slug}-engineering`, so a link can open one. */
+  slug: string;
   product: React.ReactNode;
   engineering: React.ReactNode;
 }) {
   const [view, setView] = useState<View>("product");
-  const id = useId();
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const box = useRef<HTMLDivElement>(null);
+
+  // The panel a link points at is `hidden` until it is chosen, so the
+  // browser had nothing to scroll to: choose it, then bring the tabs up.
+  const open = (next: View) => {
+    setView(next);
+    requestAnimationFrame(() => box.current?.scrollIntoView({ block: "start" }));
+  };
+  useHashTarget(`${slug}-product`, () => open("product"));
+  useHashTarget(`${slug}-engineering`, () => open("engineering"));
 
   const onKey = (event: React.KeyboardEvent, i: number) => {
     const step = { ArrowRight: 1, ArrowLeft: -1, Home: -i, End: VIEWS.length - 1 - i }[
@@ -43,7 +56,7 @@ export function ViewSwitch({
   };
 
   return (
-    <div className="views">
+    <div className="views" ref={box}>
       <div className="views__bar" role="tablist" aria-label={`${name}: choose a view`}>
         {VIEWS.map((v, i) => (
           <button
@@ -53,8 +66,8 @@ export function ViewSwitch({
             }}
             type="button"
             role="tab"
-            id={`${id}-${v.key}-tab`}
-            aria-controls={`${id}-${v.key}`}
+            id={`${slug}-${v.key}-tab`}
+            aria-controls={`${slug}-${v.key}`}
             aria-selected={view === v.key}
             tabIndex={view === v.key ? 0 : -1}
             className="views__tab"
@@ -70,8 +83,8 @@ export function ViewSwitch({
       <div
         className="views__panel"
         role="tabpanel"
-        id={`${id}-product`}
-        aria-labelledby={`${id}-product-tab`}
+        id={`${slug}-product`}
+        aria-labelledby={`${slug}-product-tab`}
         hidden={view !== "product"}
       >
         {product}
@@ -79,8 +92,8 @@ export function ViewSwitch({
       <div
         className="views__panel"
         role="tabpanel"
-        id={`${id}-engineering`}
-        aria-labelledby={`${id}-engineering-tab`}
+        id={`${slug}-engineering`}
+        aria-labelledby={`${slug}-engineering-tab`}
         hidden={view !== "engineering"}
       >
         {engineering}

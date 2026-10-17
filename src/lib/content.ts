@@ -94,7 +94,9 @@ export const HERO_KEY = [
   {
     n: 2,
     value: "Feedback back in 1.5 days, not 2.55",
-    source: "TULONGGURO STUDY · 35 PAPERS",
+    // Not "35 papers": that was the accuracy set. The timing study ran on
+    // three other task types (manuscript, Table 23).
+    source: "TULONGGURO STUDY · 3 TASK TYPES",
     href: "#tulongguro",
   },
   { n: 3, value: "152 automated tests", source: "LITURGYGEN PIPELINE", href: "#liturgygen" },
@@ -176,6 +178,19 @@ export type Engineering = {
  */
 export type Contribution = { role: string; commits?: string; note?: string };
 
+/**
+ * The expandable account under "My part": what I did, one problem and how it
+ * was closed, and what I would change. Every line points at a commit or a
+ * document. Where the record cannot separate my work from the team's, `did`
+ * is empty and `scope` says so rather than guessing a share.
+ */
+export type CaseNotes = {
+  scope: string;
+  did: string[];
+  problem: { title: string; body: string; href: string; label: string };
+  next: string;
+};
+
 const TG_REPO = "https://github.com/Damudachi/TulongGuro";
 const TG_STUDY = `${TG_REPO}/blob/main/docs/CONCLUSION-AND-RECOMMENDATIONS.md`;
 
@@ -194,20 +209,41 @@ export const TULONGGURO = {
     role: "Thesis lead — architecture and end-to-end development on a thesis team.",
     commits: "189 of 358 commits",
   } satisfies Contribution,
+  // From the commit history: 7f87bc7 and 669696a are mine; the teammates'
+  // 169 commits are where the admin, roster and mobile-layout work landed.
+  notes: {
+    scope: "My commits, and what the team’s commits cover",
+    did: [
+      "Architecture and the AI grading path: batching several papers into one model request, rotating across models, and splitting “validate” from “release”.",
+      "The grading audit trail (AI graded → teacher validated → released), and a system rule telling the model to ignore instructions written inside a student’s paper.",
+      "Teammates’ commits include admin settings, school codes, redaction-tool and mobile-layout fixes; the Docker Compose setup is a teammate’s too.",
+    ],
+    problem: {
+      title: "A late batch result could silently undo a teacher",
+      body: "A batch snapshots its queue and can run for minutes. If a teacher validated a paper in the meantime, the batch’s write reverted it to pending, and it quietly dropped out of “release all”. The write is now scoped to papers still pending, so a late result becomes a reported no-op.",
+      href: `${TG_REPO}/commit/669696a`,
+      label: "Commit 669696a",
+    },
+    next: "Run the timing study counterbalanced (the manual condition always went first), and move the job registry and quota out of memory before running a second API instance.",
+  } satisfies CaseNotes,
   measures: [
     {
       value: "55%",
       label: "less grading time per paper",
       from: "5.05 min",
       to: "2.22 min",
-      basis: "3 Grade 6 English teachers graded the same 35 papers by hand, then with TulongGuro.",
+      // 55.34% is the thesis's own figure: the mean of the three per-task
+      // reductions in Table 21. The drop between the two overall means is
+      // 56.04%. Both are stated so the arithmetic can be checked.
+      basis:
+        "3 Grade 6 English teachers timed short responses, full essays and reading reflections by hand, then with TulongGuro. 55% is the study’s mean of the three per-task cuts (75%, 57%, 34%); the two overall means alone give 56%.",
     },
     {
       value: "41%",
       label: "faster feedback turnaround",
       from: "2.55 days",
       to: "1.50 days",
-      basis: "Collection to validated feedback returned, same teachers and papers.",
+      basis: "Collection to validated feedback returned, same teachers and tasks.",
     },
     {
       value: "25.71%",
@@ -216,7 +252,7 @@ export const TULONGGURO = {
     },
   ] satisfies Measure[],
   measuresNote:
-    "From the thesis evaluation. Descriptive, not generalisable: three teachers, two activities, conditions run in a fixed order.",
+    "From the thesis evaluation. Descriptive, not generalisable: three teachers, the manual condition always run first. The 35-paper accuracy check was a separate set of papers.",
   measuresSource: { label: "Read the study’s conclusions", href: TG_STUDY },
   stack: [
     "React 19",
@@ -307,7 +343,7 @@ export const TULONGGURO = {
       { k: "Raw AI band agreement", v: "25.71%", note: "macro-F1 11.64% across 35 outputs" },
     ],
     limits:
-      "35 outputs from two activities; three teachers in the timing study, grading the same papers in a fixed order. The repository also carries 84 files in its server test suite.",
+      "Accuracy: 35 outputs from two activities. Timing: three teachers on three other task types, manual condition first. The repository also carries 84 files in its server test suite.",
     source: { label: "Study conclusions on GitHub", href: TG_STUDY },
   } satisfies Engineering,
 };
@@ -506,6 +542,20 @@ export const LITURGYGEN = {
     role: "Sole developer, under contract to the HAU Campus Ministry Office.",
     commits: "59 of 59 commits",
   } satisfies Contribution,
+  notes: {
+    scope: "Sole developer: all of it is mine",
+    did: [
+      "The React client, the Express API, the romcal calendar overlay, the rate-limited readings queue, the prayer-matching cascade and the .docx builder.",
+      "The public demo: a seeded, client-only build, with a script that strips copyrighted text before anything is committed.",
+    ],
+    problem: {
+      title: "The progress bar stopped behind the sign-in",
+      body: "Batch progress streamed over EventSource, which cannot send an Authorization header. Once the app sat behind sign-in, the stream answered 401 and the bar just stalled. It now streams over an authenticated fetch, with regression tests so EventSource cannot come back.",
+      href: "https://github.com/Damudachi/LiturgyGen/commit/8a5a2f4",
+      label: "Commit 8a5a2f4",
+    },
+    next: "Bring back the single-file desktop installer that the move from SQLite to PostgreSQL put on hold.",
+  } satisfies CaseNotes,
   stack: [
     "React",
     "Vite",
@@ -647,6 +697,17 @@ export const INTELSY = {
   contribution: {
     role: "Built jointly by the MIGHT team, working together from one shared account — the work is the team’s as a whole, not split by person.",
   } satisfies Contribution,
+  notes: {
+    scope: "Team-level results only",
+    did: [],
+    problem: {
+      title: "Short runs found almost nothing (team)",
+      body: "Every short run kept recall under 0.10, whatever the data fraction or image size. The team then trained in full: resumed from earlier weights, 30 epochs at 640 px, which reached recall 0.84 on the validation set.",
+      href: `${INTELSY_REPO}/blob/main/docs/release_notes_v1.0.md`,
+      label: "Release notes",
+    },
+    next: "Measure latency (the report defines it but never measured it), test on footage from a real site, and deal with the class imbalance behind NO-Safety Vest’s 0.19.",
+  } satisfies CaseNotes,
   stack: ["Python", "YOLOv8", "OpenCV", "PyTorch", "Google Colab"],
   repo: INTELSY_REPO,
   links: [
@@ -680,15 +741,38 @@ export const INTELSY = {
     },
   ] satisfies LegendItem[],
   caption: "Illustration of the detection task. Not model output.",
+  /**
+   * YOLO's own validation renders from the final run (colab_ppe_v_final,
+   * the checkpoint promoted to models/best.pt). Batch 0 is left out: its
+   * "pred" file is byte-identical to its labels file, so it is not output.
+   */
   output: {
-    fig: "FIG. 3.2 — ONE VALIDATION BATCH",
-    note: "The final checkpoint’s real predictions on held-out images, beside the human labels for the same batch. Images: Roboflow PPE Combined, CC BY 4.0.",
+    fig: "FIG. 3.2 — VALIDATION BATCHES",
+    badge: "Precomputed · not live",
+    model: "YOLOv8 · colab_ppe_v_final · epoch 30 · 14 classes",
+    note: "The final checkpoint’s real predictions on held-out images, saved during training, beside the human labels for the same images. Nothing runs in your browser. Images: Roboflow PPE Combined, CC BY 4.0.",
+    live: "Running it live would mean an ONNX export of the 22 MB checkpoint and a WebAssembly runtime on this page, so the saved output is shown instead.",
     pred: "Model predictions",
     labels: "Ground-truth labels",
-    alt: {
-      pred: "A four-by-four grid of construction-site photographs with the model’s boxes: mostly hardhats at confidence 0.3 to 0.8, and one safety vest.",
-      labels: "The same sixteen photographs with the human-annotated boxes the model was scored against.",
-    },
+    batches: [
+      {
+        key: "1",
+        label: "Batch 1",
+        alt: {
+          pred: "A four-by-four grid of construction-site photographs with the model’s boxes: mostly hardhats at confidence 0.3 to 0.8, and one safety vest.",
+          labels: "The same sixteen photographs with the human-annotated boxes the model was scored against.",
+        },
+      },
+      {
+        key: "2",
+        label: "Batch 2",
+        alt: {
+          pred: "Sixteen more site photographs with the model’s boxes: hardhats at confidence 0.3 to 0.9, and one NO-Safety Vest at 0.3.",
+          labels: "The same sixteen photographs with their human-annotated boxes, which in this batch mark hardhats only.",
+        },
+        caveat: "This batch’s labels mark hardhats only. A vest the model leaves unboxed is not counted against it, and a hardhat it finds that nobody labelled counts as a false positive.",
+      },
+    ],
   },
   measures: [
     {
@@ -763,7 +847,8 @@ export const INTELSY = {
     checks: [
       { k: "Hardhat", v: "0.54", note: "mAP@0.5:0.95, local test validation" },
       { k: "Safety vest", v: "0.48", note: "mAP@0.5:0.95" },
-      { k: "Mask", v: "0.38", note: "mAP@0.5:0.95 — the weakest PPE class" },
+      { k: "Mask", v: "0.38", note: "mAP@0.5:0.95 — the weakest of these three" },
+      { k: "NO-Safety Vest", v: "0.19", note: "mAP@0.5:0.95 — the weakest of all 14 classes" },
       { k: "Overall", v: "0.79 · 0.52", note: "mAP@0.5 · mAP@0.5:0.95, local test validation" },
       { k: "Latency", v: "Not reported", note: "defined in the report; no figure was committed" },
     ],
@@ -776,11 +861,15 @@ export const INTELSY = {
   } satisfies Engineering,
 };
 
-export const MORE_BUILDS = [
+export const MORE_BUILDS: { n: string; title: string; body: string; href?: string }[] = [
   {
     n: "04",
     title: "MeatShopPOS",
-    body: "Scala inventory and point-of-sale system.",
+    // From src/main/scala/MeatInventoryPOS.scala and build.sbt in the repo.
+    // Not claimed: transactional sales — the stock-update statement there is
+    // still an empty placeholder.
+    body: "Course project: a Scala 3 and Swing desktop app on MySQL, with inventory, sales, spoilage and restock screens.",
+    href: "https://github.com/Damudachi/MeatShopPOS_Scala",
   },
   {
     n: "05",
@@ -791,6 +880,101 @@ export const MORE_BUILDS = [
     n: "06",
     title: "HAU About That Way",
     body: "Flutter and Supabase campus navigation app.",
+  },
+];
+
+/**
+ * Explore by role. A role reorders the three plates and marks the stack terms
+ * the work on this page actually demonstrates — a term that is only listed
+ * (RAG, BERT, AWS) is never highlighted, because nothing above shows it.
+ * Every summary is a sentence the plates themselves already prove.
+ */
+export type RoleKey = "swe" | "ai" | "fullstack";
+export type PlateId = "tulongguro" | "liturgygen" | "intelsy";
+
+export const ROLES: {
+  key: RoleKey;
+  label: string;
+  summary: string;
+  order: PlateId[];
+  look: { href: string; label: string }[];
+  stack: string[];
+}[] = [
+  {
+    key: "swe",
+    label: "IT / Software Engineering",
+    summary:
+      "Applications built around a real office’s workflow and kept honest by tests. LiturgyGen, built solo for a campus office, runs 152 automated tests. TulongGuro’s testing closed 170 functional and regression cases. The bugs I diagnosed are written up commit by commit.",
+    order: ["liturgygen", "tulongguro", "intelsy"],
+    look: [
+      { href: "#liturgygen-notes", label: "LiturgyGen — a stalled stream, diagnosed" },
+      { href: "#liturgygen-engineering", label: "LiturgyGen — tests and regression guards" },
+      { href: "#tulongguro-notes", label: "TulongGuro — a race that undid teachers’ grades" },
+      { href: "#builds", label: "MeatShopPOS — Scala and MySQL" },
+    ],
+    stack: [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "Express.js",
+      "REST APIs",
+      "PostgreSQL",
+      "SQLite",
+      "SQL",
+      "Scala",
+      "Git",
+      "GitHub",
+      "Automated testing",
+    ],
+  },
+  {
+    key: "ai",
+    label: "AI / Machine Learning",
+    summary:
+      "Models integrated into real workflows, with the evaluation and the limits shown. TulongGuro’s Gemini vision-language grader drafted marks in the teacher’s band only 25.71% of the time, so a teacher approves every grade. INTELSY, a team project, fine-tuned YOLOv8 for PPE detection to mAP@0.5 0.78.",
+    order: ["tulongguro", "intelsy", "liturgygen"],
+    look: [
+      { href: "#tulongguro-engineering", label: "TulongGuro — the vision-language pipeline and its scores" },
+      { href: "#lab", label: "TulongGuro — the grading walkthrough (simulated)" },
+      { href: "#intelsy", label: "INTELSY — real validation output (team)" },
+      { href: "#intelsy-engineering", label: "INTELSY — per-class scores and limits" },
+    ],
+    stack: [
+      "Python",
+      "Google Gemini API",
+      "Vision-Language Models",
+      "YOLOv8",
+      "AI model integration",
+      "Human-in-the-loop design",
+    ],
+  },
+  {
+    key: "fullstack",
+    label: "Full-stack / DevOps",
+    summary:
+      "Two deployed full-stack apps: React clients, Express APIs, and PostgreSQL through Prisma or Supabase, hosted on Vercel, Render and GitHub Pages. LiturgyGen’s public demo swaps the real API for a seeded mock behind one interface.",
+    order: ["tulongguro", "liturgygen", "intelsy"],
+    look: [
+      { href: "#tulongguro-engineering", label: "TulongGuro — from the web app to PostgreSQL" },
+      { href: "#liturgygen-engineering", label: "LiturgyGen — API, queue, cache and stream" },
+      { href: "#liturgygen-notes", label: "LiturgyGen — an auth bug in a streaming API" },
+    ],
+    stack: [
+      "React",
+      "Vite",
+      "Tailwind CSS",
+      "JavaScript",
+      "Node.js",
+      "Express.js",
+      "REST APIs",
+      "PostgreSQL",
+      "Supabase",
+      "Prisma",
+      "Vercel",
+      "Render",
+      "Git",
+      "GitHub",
+    ],
   },
 ];
 
@@ -863,7 +1047,7 @@ export const EDUCATION = {
   school: "Holy Angel University, Angeles City",
   facts: [
     { label: "Expected graduation", value: "April 2027" },
-    { label: "GWA", value: "1.15 / 1.00 highest" },
+    { label: "GWA", value: "1.15 — 1.00 is the highest grade on my university’s scale" },
     { label: "President’s Lister", value: "Six semesters" },
   ],
   coursework: "Intelligent Systems, Machine Learning, Operating Systems.",

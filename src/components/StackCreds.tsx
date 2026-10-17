@@ -1,5 +1,11 @@
 import { Ink } from "./Ink";
-import { CREDENTIALS, LINKS, STACK } from "@/lib/content";
+import { CREDENTIALS, LINKS, ROLES, STACK } from "@/lib/content";
+
+/** The roles a term is evidence for; Explore by role marks them from CSS. */
+const rolesFor = (term: string) =>
+  ROLES.filter((role) => role.stack.includes(term))
+    .map((role) => role.key)
+    .join(" ") || undefined;
 
 export function StackCreds() {
   return (
@@ -18,13 +24,20 @@ export function StackCreds() {
                 <Ink>What I reach for.</Ink>
               </h2>
 
+              <p className="note stack__lens">
+                Marked for the role you chose: the terms the work above actually shows. The rest are
+                listed, not demonstrated here.
+              </p>
+
               <div className="stack" style={{ marginTop: "clamp(28px, 3vw, 44px)" }}>
                 {STACK.map((group) => (
                   <div className="stack__row" key={group.group}>
                     <p className="mono">{group.group}</p>
                     <p className="stack__terms">
                       {group.terms.map((term) => (
-                        <span key={term}>{term}</span>
+                        <span key={term} data-for={rolesFor(term)}>
+                          {term}
+                        </span>
                       ))}
                     </p>
                   </div>

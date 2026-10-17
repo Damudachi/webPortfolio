@@ -1,7 +1,9 @@
 import { Ink } from "./Ink";
+import { Outward } from "./Outward";
 import { PlateIntelsy } from "./PlateIntelsy";
 import { PlateLiturgyGen } from "./PlateLiturgyGen";
 import { PlateTulongGuro } from "./PlateTulongGuro";
+import { RolePicker, RolePlates } from "./RoleLens";
 import { MORE_BUILDS } from "@/lib/content";
 
 export function SelectedWork() {
@@ -25,19 +27,32 @@ export function SelectedWork() {
               line in the key and the drawing will show you where it lives.
             </p>
 
-            <div className="plates">
-              <PlateTulongGuro />
-              <PlateLiturgyGen />
-              <PlateIntelsy />
-            </div>
+            <RolePicker />
 
-            <div className="builds">
+            <RolePlates
+              plates={{
+                tulongguro: <PlateTulongGuro />,
+                liturgygen: <PlateLiturgyGen />,
+                intelsy: <PlateIntelsy />,
+              }}
+            />
+
+            <div className="builds" id="builds">
               <p className="index">More builds</p>
               <div className="builds__list">
                 {MORE_BUILDS.map((build) => (
                   <div className="builds__row" key={build.title}>
                     <span className="mono">{build.n}</span>
-                    <h3>{build.title}</h3>
+                    <h3>
+                      {build.href ? (
+                        <a className="link" href={build.href} target="_blank" rel="noopener noreferrer">
+                          {build.title}
+                          <Outward />
+                        </a>
+                      ) : (
+                        build.title
+                      )}
+                    </h3>
                     <p className="mono-plain">{build.body}</p>
                   </div>
                 ))}

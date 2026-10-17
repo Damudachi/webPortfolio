@@ -1,5 +1,5 @@
 import { Portrait } from "./Portrait";
-import { HERO, HERO_KEY, HERO_SHEET, HERO_SPEC } from "@/lib/content";
+import { HERO, HERO_KEY, HERO_SHEET, HERO_SPEC, RESUME } from "@/lib/content";
 
 /**
  * The opening plate of the book.
@@ -79,9 +79,17 @@ export function Hero() {
               <a className="link-out" href="#lab">
                 Try the grading lab
               </a>
-              <a className="link-out" href={HERO_SPEC.reachHref}>
-                Email me
-              </a>
+              {/* The résumé takes the third slot when there is one: the email
+                  is already the colophon's REACH row, one line below. */}
+              {RESUME.href ? (
+                <a className="link-out" href={RESUME.href} download="Aldrich_Sabando_Resume.pdf">
+                  {RESUME.label} · PDF
+                </a>
+              ) : (
+                <a className="link-out" href={HERO_SPEC.reachHref}>
+                  Email me
+                </a>
+              )}
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import { Lab } from "./Lab";
-import { ContributionLine, Measures, PlateHead, PlateLinks, StackList } from "./plate-parts";
+import { CaseNotes, ContributionLine, Measures, PlateHead, PlateLinks, StackList } from "./plate-parts";
 import { Shot } from "./Shot";
 import { EngineeringView } from "./Trace";
 import { ViewSwitch } from "./ViewSwitch";
@@ -29,6 +29,7 @@ export function PlateTulongGuro() {
           <p className="prose">{P.detail}</p>
 
           <ContributionLine data={P.contribution} />
+          <CaseNotes slug="tulongguro" data={P.notes} />
           <PlateLinks links={P.links} />
           <StackList terms={P.stack} />
         </div>
@@ -46,6 +47,7 @@ export function PlateTulongGuro() {
 
       <ViewSwitch
         name={P.title}
+        slug="tulongguro"
         product={
           <>
             <Measures items={P.measures} note={P.measuresNote} source={P.measuresSource} />

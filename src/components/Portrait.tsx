@@ -139,7 +139,6 @@ export function Portrait() {
           type="button"
           className="portrait__plate"
           aria-pressed={held}
-          aria-label={`${PORTRAIT.alt} Press to hold the second exposure for one cycle.`}
           onPointerEnter={() => setPointed(true)}
           onPointerLeave={() => setPointed(false)}
           onPointerCancel={() => setPointed(false)}
@@ -157,6 +156,12 @@ export function Portrait() {
           onBlur={() => setPointed(false)}
           onClick={() => setHeld((on) => !on)}
         >
+          {/* The description is text inside the button rather than an
+              aria-label, so the accessible name still contains the read-out
+              a sighted reader sees on the plate (WCAG 2.5.3). */}
+          <span className="sr-only">
+            {PORTRAIT.alt} Press to hold the second exposure for one cycle.
+          </span>
           <span className="portrait__frame">
             {/* Both exposures load eagerly: this plate is the first thing on
                 the page, and it is painted from the first frame. */}

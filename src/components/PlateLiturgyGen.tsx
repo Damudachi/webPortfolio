@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CaseNotes,
   ContributionLine,
   Legend,
   PlateHead,
@@ -50,11 +51,13 @@ export function PlateLiturgyGen() {
           <p className="lede" data-reveal="read">{P.summary}</p>
           <PlateLinks links={P.links} note={P.demoNote} />
           <ContributionLine data={P.contribution} />
+          <CaseNotes slug="liturgygen" data={P.notes} />
         </div>
       </div>
 
       <ViewSwitch
         name={P.title}
+        slug="liturgygen"
         engineering={<EngineeringView data={P.engineering} name={P.title} />}
         product={
           <>

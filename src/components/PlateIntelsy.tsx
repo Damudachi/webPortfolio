@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CaseNotes,
   ContributionLine,
   Legend,
   Measures,
@@ -96,6 +97,7 @@ export function PlateIntelsy() {
           <p className="lede" data-reveal="read">{P.summary}</p>
           <PlateLinks links={P.links} note={P.teamNote} />
           <ContributionLine data={P.contribution} />
+          <CaseNotes slug="intelsy" data={P.notes} />
 
           <Legend items={P.legend} active={active} onActive={onActive} />
           <StackList terms={P.stack} />
@@ -240,6 +242,7 @@ export function PlateIntelsy() {
 
       <ViewSwitch
         name={P.title}
+        slug="intelsy"
         product={
           <div className="plate__evidence">
             <ModelOutput />

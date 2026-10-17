@@ -518,11 +518,11 @@ export const LITURGYGEN = {
   ],
   repo: "https://github.com/Damudachi/LiturgyGen",
   links: [
-    { label: "Try the demo", href: "https://damudachi.github.io/LiturgyGen/", lead: true },
+    { label: "Open the app", href: "https://liturgygen.onrender.com/", lead: true },
     { label: "Read the code", href: "https://github.com/Damudachi/LiturgyGen", lead: false },
   ],
   demoNote:
-    "The demo is a client-only build on GitHub Pages: no sign-in and no server, with seeded data kept in your browser. Scripture text and the office’s own prayers are copyrighted, so they are replaced by stand-in lines.",
+    "The app opens on the office’s sign-in. Its “See the demo” button needs no account: a client-only build on GitHub Pages with seeded data kept in your browser. Scripture text and the office’s own prayers are copyrighted, so the demo uses stand-in lines.",
   shots: [
     {
       src: "day",

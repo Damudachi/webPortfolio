@@ -1293,7 +1293,7 @@ main:focus {
 @media (min-width: 900px) {
   .plate__intro {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    align-items: end;
+    align-items: start;
   }
 }
 

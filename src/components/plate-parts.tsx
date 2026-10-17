@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Outward } from "./Outward";
-import type { LegendItem } from "@/lib/content";
+import { Tally } from "./Tally";
+import type { Contribution, LegendItem, Measure } from "@/lib/content";
 
 export type ZoneState = "on" | "off" | undefined;
 
@@ -199,6 +200,67 @@ export function StackList({ terms }: { terms: string[] }) {
           <span key={term}>{term}</span>
         ))}
       </p>
+    </div>
+  );
+}
+
+/**
+ * Results, each with what it was measured against. The figure is set large
+ * because it is the claim; the baseline and the basis sit directly under it
+ * because a figure without them is only an assertion.
+ */
+export function Measures({
+  items,
+  note,
+  source,
+}: {
+  items: Measure[];
+  note?: string;
+  source?: { label: string; href: string };
+}) {
+  return (
+    <div className="measures">
+      <dl className="measures__row">
+        {items.map((m) => (
+          <div className="measure" key={m.label}>
+            <dt className="mono">{m.label}</dt>
+            <dd className="measure__v">
+              <Tally value={m.value} />
+            </dd>
+            {m.from && m.to ? (
+              <dd className="measure__ft">
+                <span>{m.from}</span>
+                <i aria-hidden="true" />
+                <span className="sr-only"> to </span>
+                <b>{m.to}</b>
+              </dd>
+            ) : null}
+            <dd className="measure__basis">{m.basis}</dd>
+          </div>
+        ))}
+      </dl>
+      {note || source ? (
+        <p className="note measures__note">
+          {note}{" "}
+          {source ? (
+            <a className="link" href={source.href} target="_blank" rel="noopener noreferrer">
+              {source.label}
+            </a>
+          ) : null}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** Who did the work, stated as the record states it. */
+export function ContributionLine({ data }: { data: Contribution }) {
+  const record = [data.commits, data.note].filter(Boolean).join(" · ");
+  return (
+    <div className="contrib">
+      <p className="mono">My part</p>
+      <p className="contrib__role">{data.role}</p>
+      {record ? <p className="mono-plain">{record}</p> : null}
     </div>
   );
 }

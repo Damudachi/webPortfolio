@@ -76,6 +76,9 @@ export function Hero() {
               <a className="link-out link-out--solid" href="#work">
                 Explore selected work
               </a>
+              <a className="link-out" href="#lab">
+                Try the grading lab
+              </a>
               <a className="link-out" href={HERO_SPEC.reachHref}>
                 Email me
               </a>

@@ -1,5 +1,5 @@
 import { Ink } from "./Ink";
-import { CONTACT, HERO } from "@/lib/content";
+import { CONTACT, HERO, RESUME } from "@/lib/content";
 
 export function Contact() {
   return (
@@ -34,6 +34,19 @@ export function Contact() {
                   <span className="channel__go">{channel.go}</span>
                 </a>
               ))}
+              {RESUME.href ? (
+                <a className="channel" href={RESUME.href} download>
+                  <span className="mono">{RESUME.label}</span>
+                  <span className="channel__val">PDF</span>
+                  <span className="channel__go">Download</span>
+                </a>
+              ) : (
+                <div className="channel channel--pending">
+                  <span className="mono">{RESUME.label}</span>
+                  <span className="channel__val">{RESUME.pending}</span>
+                  <span className="channel__go">Pending</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

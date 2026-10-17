@@ -1,6 +1,19 @@
 "use client";
 
-import { Legend, PlateHead, PlateLinks, StackList, SvgCallout, stateOf, usePressRun } from "./plate-parts";
+import {
+  ContributionLine,
+  Legend,
+  Measures,
+  PlateHead,
+  PlateLinks,
+  StackList,
+  SvgCallout,
+  stateOf,
+  usePressRun,
+} from "./plate-parts";
+import { ModelOutput } from "./ModelOutput";
+import { EngineeringView } from "./Trace";
+import { ViewSwitch } from "./ViewSwitch";
 import { INTELSY as P } from "@/lib/content";
 
 /** An abstract stand-in for a person on a floor. No faces, no photograph. */
@@ -82,6 +95,7 @@ export function PlateIntelsy() {
 
           <p className="lede" data-reveal="read">{P.summary}</p>
           <PlateLinks links={P.links} note={P.teamNote} />
+          <ContributionLine data={P.contribution} />
 
           <Legend items={P.legend} active={active} onActive={onActive} />
           <StackList terms={P.stack} />
@@ -224,6 +238,16 @@ export function PlateIntelsy() {
         </figure>
       </div>
 
+      <ViewSwitch
+        name={P.title}
+        product={
+          <div className="plate__evidence">
+            <ModelOutput />
+            <Measures items={P.measures} />
+          </div>
+        }
+        engineering={<EngineeringView data={P.engineering} name={P.title} />}
+      />
     </article>
   );
 }

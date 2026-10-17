@@ -79,12 +79,25 @@ export const HERO_SHEET = {
 /**
  * The three readings this page can prove, set as a key rather than a stats
  * bar. Each row opens the plate that proves it, so the first evidence a
- * reader meets is not an assertion. The figures are unchanged.
+ * reader meets is not an assertion. The figures are the thesis's own
+ * (docs/CONCLUSION-AND-RECOMMENDATIONS.md in the TulongGuro repo) and the
+ * LiturgyGen README's test count; the earlier "50% · 10 pilot teachers" had
+ * no source behind it.
  */
 export const HERO_KEY = [
-  { n: 1, value: "50% less grading time", source: "TULONGGURO PILOT", href: "#tulongguro" },
-  { n: 2, value: "10 pilot teachers", source: "CLASSROOM PILOT", href: "#tulongguro" },
-  { n: 3, value: "90+ automated tests", source: "LITURGYGEN PIPELINE", href: "#liturgygen" },
+  {
+    n: 1,
+    value: "55% less grading time per paper",
+    source: "TULONGGURO STUDY · 3 TEACHERS",
+    href: "#tulongguro",
+  },
+  {
+    n: 2,
+    value: "Feedback back in 1.5 days, not 2.55",
+    source: "TULONGGURO STUDY · 35 PAPERS",
+    href: "#tulongguro",
+  },
+  { n: 3, value: "152 automated tests", source: "LITURGYGEN PIPELINE", href: "#liturgygen" },
 ];
 
 /**
@@ -124,6 +137,48 @@ export const TAPE = [
 
 export type LegendItem = { n: number; title: string; body: string };
 
+/**
+ * A measured result, never set without what it was measured against. The
+ * value is the big reading; `from → to` is the baseline and the result; the
+ * basis says who, how many and how — so a reader can judge it rather than
+ * take it.
+ */
+export type Measure = {
+  value: string;
+  label: string;
+  from?: string;
+  to?: string;
+  basis: string;
+};
+
+/**
+ * The engineering view's trace: six stations, always six, laid out as a
+ * serpentine in the stylesheet. Step n lights station n and draws the wire
+ * that reaches it from station n − 1.
+ */
+export type TraceStation = { label: string; sub: string; title: string; body: string };
+
+export type Decision = { title: string; body: string };
+
+export type Check = { k: string; v: string; note?: string };
+
+export type Engineering = {
+  trace: TraceStation[];
+  decisions: Decision[];
+  checks: Check[];
+  limits: string;
+  source: { label: string; href: string };
+};
+
+/**
+ * Who did the work. Where the commit history can say, it says it as a count;
+ * where it cannot (a team on one shared account), there is no count at all.
+ */
+export type Contribution = { role: string; commits?: string; note?: string };
+
+const TG_REPO = "https://github.com/Damudachi/TulongGuro";
+const TG_STUDY = `${TG_REPO}/blob/main/docs/CONCLUSION-AND-RECOMMENDATIONS.md`;
+
 export const TULONGGURO = {
   plate: "PLATE I",
   index: "01",
@@ -135,10 +190,34 @@ export const TULONGGURO = {
     "AI-assisted, rubric-based feedback for handwritten and typed student work, with teacher approval built into the workflow.",
   detail:
     "Google Gemini vision-language models draft scores and diagnostic feedback against teacher-defined rubrics. Teachers approve every grade. Classroom management and competency analytics sit alongside the grading loop, aligned with the DepEd MATATAG Curriculum.",
-  stats: [
-    { value: "50%", label: "less grading time" },
-    { value: "10", label: "pilot teachers" },
-  ],
+  contribution: {
+    role: "Thesis lead — architecture and end-to-end development on a thesis team.",
+    commits: "189 of 358 commits",
+  } satisfies Contribution,
+  measures: [
+    {
+      value: "55%",
+      label: "less grading time per paper",
+      from: "5.05 min",
+      to: "2.22 min",
+      basis: "3 Grade 6 English teachers graded the same 35 papers by hand, then with TulongGuro.",
+    },
+    {
+      value: "41%",
+      label: "faster feedback turnaround",
+      from: "2.55 days",
+      to: "1.50 days",
+      basis: "Collection to validated feedback returned, same teachers and papers.",
+    },
+    {
+      value: "25.71%",
+      label: "of raw AI drafts in the teacher’s band",
+      basis: "9 of 35. The draft is not the grade — which is why nothing releases without a teacher.",
+    },
+  ] satisfies Measure[],
+  measuresNote:
+    "From the thesis evaluation. Descriptive, not generalisable: three teachers, two activities, conditions run in a fixed order.",
+  measuresSource: { label: "Read the study’s conclusions", href: TG_STUDY },
   stack: [
     "React 19",
     "Vite",
@@ -147,12 +226,14 @@ export const TULONGGURO = {
     "Prisma",
     "Supabase PostgreSQL",
     "Supabase Storage",
+    "Google Gemini",
     "Vercel",
     "Render",
   ],
   demo: "https://tulong-guro.vercel.app/",
   links: [
     { label: "Open the live site", href: "https://tulong-guro.vercel.app/", lead: true },
+    { label: "Read the code", href: TG_REPO, lead: false },
   ],
   shot: {
     bar: "tulong-guro.vercel.app",
@@ -160,28 +241,256 @@ export const TULONGGURO = {
     fig: "FIG. 1.1 — THE LIVE SITE",
     note: "A capture of the deployed application, not a mockup.",
   },
-  steps: [
-    {
-      n: 1,
-      title: "Student submission",
-      body: "Handwritten or typed work enters the queue against a chosen rubric.",
-    },
-    {
-      n: 2,
-      title: "Rubric evaluation",
-      body: "Gemini vision-language models read the work and score it criterion by criterion.",
-    },
-    {
-      n: 3,
-      title: "Drafted feedback",
-      body: "Scores arrive with diagnostic comments the teacher can edit before anything is sent.",
-    },
-    {
-      n: 4,
-      title: "Teacher approval",
-      body: "Nothing reaches a student until a teacher approves it. No grade is released automatically.",
-    },
+  engineering: {
+    trace: [
+      {
+        label: "Progressive web app",
+        sub: "React 19 · Vite · Vercel",
+        title: "A photographed page goes in",
+        body: "A teacher or student uploads a photo of handwritten work, or a typed file, against an activity and its rubric. Uploads queue offline and send when the connection comes back.",
+      },
+      {
+        label: "Express API",
+        sub: "Node.js · Render",
+        title: "The API takes the job",
+        body: "One deliberate single instance: the AI job registry and the daily model quota live in memory, so there is exactly one place that knows how much budget is left.",
+      },
+      {
+        label: "Image optimiser",
+        sub: "orient · cap · compress",
+        title: "The image is prepared before it costs anything",
+        body: "Orientation corrected, resolution capped, JPEG recompressed — server-side, before the model ever sees it.",
+      },
+      {
+        label: "Vision-language model",
+        sub: "Gemini Flash · fallback tier",
+        title: "One inference reads and scores",
+        body: "The model reads the handwriting and scores it criterion by criterion against the teacher’s rubric in a single call. A primary and a fallback Flash model, so a class is read to one standard whichever answers.",
+      },
+      {
+        label: "PostgreSQL",
+        sub: "Prisma · Supabase",
+        title: "A draft is stored, marked PENDING",
+        body: "Score, rubric breakdown and feedback land as a draft. The write is scoped to status PENDING, so a batch result that arrives late can never overwrite a grade a teacher has already validated.",
+      },
+      {
+        label: "Teacher review",
+        sub: "validate · then release",
+        title: "A teacher validates, then releases",
+        body: "Validating marks a paper GRADED; releasing publishes the set. Two acts, so a teacher who recalibrates on paper 20 has not already shown paper 2 to a student. Every change goes to an append-only audit log.",
+      },
+    ],
+    decisions: [
+      {
+        title: "Validation and release are separate",
+        body: "Teachers recalibrate partway down a stack. Holding release until the set is reviewed means a drifting standard is corrected before any student sees it.",
+      },
+      {
+        title: "The AI draft is kept beside the final mark",
+        body: "aiScore and hitlScore are separate columns, with an append-only log behind them, so an approval can be reconstructed if a grade is disputed months later.",
+      },
+      {
+        title: "Late results cannot overwrite a teacher",
+        body: "A batch can run for minutes. Scoping its write to PENDING turns a late result into a no-op instead of silently un-validating a paper.",
+      },
+      {
+        title: "One API instance, on purpose",
+        body: "In-memory job state and quota keep the system simple and correct at pilot scale. The cost is named: scaling out means moving both somewhere shared first.",
+      },
+    ],
+    checks: [
+      { k: "Unit & component", v: "32 / 32 pass", note: "plus 5 / 5 VLM functional scenarios" },
+      { k: "Functional & regression", v: "170 cases", note: "13 problems found, fixed and re-verified" },
+      { k: "ISO/IEC 25010:2023", v: "4.35 / 5", note: "“Very Good”" },
+      { k: "System Usability Scale", v: "80 · 75 · 84", note: "teacher · student · admin" },
+      { k: "AI time per paper", v: "24.83 s", note: "mean, the model’s own processing" },
+      { k: "Raw AI band agreement", v: "25.71%", note: "macro-F1 11.64% across 35 outputs" },
+    ],
+    limits:
+      "35 outputs from two activities; three teachers in the timing study, grading the same papers in a fixed order. The repository also carries 84 files in its server test suite.",
+    source: { label: "Study conclusions on GitHub", href: TG_STUDY },
+  } satisfies Engineering,
+};
+
+/**
+ * The walkthrough on Plate I. Every word below was written for this page:
+ * three fictional learners, one real rubric. The rubric is TulongGuro’s own
+ * built-in Narrative & Persuasive Composition template (server/
+ * rubricTemplates.js), criteria and weights verbatim. Nothing here came out
+ * of a model — the drafts are precomputed, and the Lab says so on its face.
+ * The first sample is adapted from the worked example the app itself shows
+ * teachers before they trust it with a class (src/components/ExampleFeedback.jsx).
+ */
+export type LabCriterion = { name: string; points: number; description: string };
+
+export type LabSample = {
+  id: string;
+  learner: string;
+  activity: string;
+  medium: string;
+  lines: string[];
+  scores: { draft: number; why: string; line?: number }[];
+  strengths: string;
+  growth: { line: number; quote: string; explanation: string }[];
+  steps: string[];
+};
+
+export const LAB = {
+  plate: "FIG. 1.2",
+  title: "Grade one paper the way a teacher does",
+  label: "Simulated walkthrough · sample data · no live inference",
+  intro:
+    "Pick a paper, read the rubric and the draft, change what you disagree with, then validate and release it. The drafts are precomputed for this page; the states they move through are the application’s own.",
+  stages: [
+    { key: "select", title: "Choose a paper" },
+    { key: "rubric", title: "Read the rubric" },
+    { key: "draft", title: "Check the draft" },
+    { key: "edit", title: "Make it yours" },
+    { key: "approve", title: "Validate & release" },
+    { key: "done", title: "What changed" },
   ],
+  rubric: {
+    name: "Narrative & Persuasive Composition Rubric",
+    source: "TulongGuro built-in template · Grade 6 English",
+    criteria: [
+      {
+        name: "Content & Ideas",
+        points: 35,
+        description: "Depth and relevance of ideas, a clear central message or claim, and understanding of the prompt/topic.",
+      },
+      {
+        name: "Organization",
+        points: 25,
+        description: "Clear introduction, body, and conclusion; logical sequence of ideas or events; effective transitions.",
+      },
+      {
+        name: "Evidence & Support",
+        points: 20,
+        description: "Uses specific evidence, examples, or details to support the narrative or persuasive claim.",
+      },
+      {
+        name: "Language & Mechanics",
+        points: 20,
+        description: "Age-appropriate, gender-responsive, culture-sensitive language; correct grammar, spelling, and punctuation.",
+      },
+    ] satisfies LabCriterion[],
+  },
+  samples: [
+    {
+      id: "favourite-place",
+      learner: "Learner A",
+      activity: "Narrative: My Favourite Place",
+      medium: "Handwritten · photographed",
+      lines: [
+        "My favourite place is my Lola's house in Bataan.",
+        "I go their every summer with my cousins.",
+        "The sea is right behind the house and it smells like salt.",
+        "It was fun we swam and ate grilled fish by the shore.",
+        "At night we listen to the waves until we fall asleep.",
+        "I want to go back there every year of my life.",
+      ],
+      scores: [
+        { draft: 30, why: "A clear central feeling about one place, held from the first line to the last.", line: 0 },
+        { draft: 19, why: "Opens and closes well; the middle runs events together without transitions.", line: 3 },
+        { draft: 16, why: "Concrete detail — salt air, grilled fish, the waves — carries the description.", line: 2 },
+        { draft: 12, why: "A homophone error and a run-on sentence.", line: 1 },
+      ],
+      strengths:
+        "You describe your favourite place with real feeling, and the reader can picture it. The smell of salt and the sound of the waves do the work for you.",
+      growth: [
+        {
+          line: 1,
+          quote: "I go their every summer",
+          explanation: "‘Their’ shows belonging. For a place, use ‘there’ — ‘I go there every summer.’",
+        },
+        {
+          line: 3,
+          quote: "It was fun we swam and ate",
+          explanation: "Two ideas are joined without punctuation. Try: ‘It was fun. We swam and ate…’",
+        },
+      ],
+      steps: [
+        "Practise the difference between ‘there’, ‘their’ and ‘they’re’.",
+        "Read your work aloud — where you pause for breath, you usually need a full stop.",
+      ],
+    },
+    {
+      id: "school-garden",
+      learner: "Learner B",
+      activity: "Persuasive: Our School Needs a Garden",
+      medium: "Typed · uploaded",
+      lines: [
+        "Our school should build a vegetable garden.",
+        "First, a garden teaches us where food comes from.",
+        "Second, we can use the vegetables for the feeding program.",
+        "Some people say it is too much work, but every class can take one week.",
+        "Also gardens are nice.",
+        "That is why the principal should say yes to a garden.",
+      ],
+      scores: [
+        { draft: 29, why: "A clear claim, stated first and returned to at the end.", line: 0 },
+        { draft: 22, why: "Signposted reasons — first, second — and a counter-argument answered.", line: 3 },
+        { draft: 12, why: "Two reasons are supported; the third is an opinion with nothing behind it.", line: 4 },
+        { draft: 17, why: "Clean sentences; one missing comma after an introductory word.", line: 4 },
+      ],
+      strengths:
+        "You state your claim in the first sentence and you answer the strongest objection before anyone can raise it. That is what persuasive writing is for.",
+      growth: [
+        {
+          line: 4,
+          quote: "Also gardens are nice.",
+          explanation: "This reason has no support. Say what makes them nice — shade, a quiet place to read — or leave it out.",
+        },
+      ],
+      steps: [
+        "Give every reason one piece of evidence: a fact, an example or a number.",
+        "After ‘Also,’ ‘First,’ and ‘However,’ put a comma.",
+      ],
+    },
+    {
+      id: "rainy-day",
+      learner: "Learner C",
+      activity: "Narrative: The Day the Rain Came",
+      medium: "Handwritten · photographed",
+      lines: [
+        "the rain came on the day of our field trip.",
+        "We waited in the bus.",
+        "Then we went home.",
+        "My friend Ana was sad because she brought a camera.",
+        "I was sad to.",
+        "The end.",
+      ],
+      scores: [
+        { draft: 18, why: "The event is there, but the story stops before anything happens in it.", line: 2 },
+        { draft: 13, why: "Events are in order, with no build and an abrupt close.", line: 5 },
+        { draft: 9, why: "One detail — Ana’s camera — is the only thing the reader can see.", line: 3 },
+        { draft: 12, why: "A missing capital and a ‘to / too’ error.", line: 4 },
+      ],
+      strengths:
+        "Ana’s camera is a strong detail: it tells the reader exactly what the rain took away without saying so.",
+      growth: [
+        {
+          line: 2,
+          quote: "Then we went home.",
+          explanation: "This is where your story could happen. What did you see from the bus window? What did anyone say?",
+        },
+        {
+          line: 4,
+          quote: "I was sad to.",
+          explanation: "‘To’ points somewhere. When you mean ‘also’, write ‘too’ — ‘I was sad too.’",
+        },
+      ],
+      steps: [
+        "Add three sentences between waiting and going home: one you saw, one you heard, one you felt.",
+        "Start every sentence with a capital letter, including the first.",
+      ],
+    },
+  ] satisfies LabSample[],
+  states: {
+    PENDING: "Pending review",
+    GRADED: "Validated",
+    RELEASED: "Released",
+  },
 };
 
 export const LITURGYGEN = {
@@ -193,13 +502,27 @@ export const LITURGYGEN = {
   category: "AUTOMATION",
   summary:
     "Automates Philippine liturgical date resolution, reading retrieval, prayer matching, and print-ready .docx generation.",
-  stack: ["Python", "FastAPI", "SQLite", "PostgreSQL", "python-docx", "Server-Sent Events"],
+  contribution: {
+    role: "Sole developer, under contract to the HAU Campus Ministry Office.",
+    commits: "59 of 59 commits",
+  } satisfies Contribution,
+  stack: [
+    "React",
+    "Vite",
+    "Node.js / Express",
+    "PostgreSQL (Supabase)",
+    "docx",
+    "romcal",
+    "Render",
+    "GitHub Pages",
+  ],
   repo: "https://github.com/Damudachi/LiturgyGen",
   links: [
     { label: "Try the demo", href: "https://damudachi.github.io/LiturgyGen/", lead: true },
     { label: "Read the code", href: "https://github.com/Damudachi/LiturgyGen", lead: false },
   ],
-  demoNote: "The demo runs on seeded data with no sign-in.",
+  demoNote:
+    "The demo is a client-only build on GitHub Pages: no sign-in and no server, with seeded data kept in your browser. Scripture text and the office’s own prayers are copyrighted, so they are replaced by stand-in lines.",
   shots: [
     {
       src: "day",
@@ -228,16 +551,85 @@ export const LITURGYGEN = {
     {
       n: 3,
       title: "Queue, cache, stream",
-      body: "Request queues, raw-response caching and batch processing, with Server-Sent Events reporting progress as a run proceeds.",
+      body: "Readings come through a serialised, rate-limited queue with a fallback source and a permanent disk cache, and progress streams to the client as a run proceeds.",
     },
     {
       n: 4,
-      title: "90+ automated tests",
-      body: "A test suite covering the generation pipeline, so a change to one feast day does not quietly break another.",
+      title: "152 automated tests",
+      body: "138 server and 14 client tests, last run 11 Oct 2026, so a change to one feast day does not quietly break another.",
     },
   ] satisfies LegendItem[],
   context: "Built for publishing workflows in the HAU Campus Ministry Office.",
+  engineering: {
+    trace: [
+      {
+        label: "React client",
+        sub: "Vite · one API interface",
+        title: "A day or a month is asked for",
+        body: "The client talks to one interface with two implementations behind it — the real API, or a seeded mock for the public demo — so no component knows which it is using.",
+      },
+      {
+        label: "Express API",
+        sub: "Render · same origin",
+        title: "The API owns everything slow or shared",
+        body: "Supabase issues the session; the server verifies the token and resolves which parish is asking before any work starts.",
+      },
+      {
+        label: "Liturgical calendar",
+        sub: "romcal · local ORDO overlay",
+        title: "The date is resolved",
+        body: "romcal’s Philippine calendar, with a local ORDO overlay on top of it.",
+      },
+      {
+        label: "Readings queue",
+        sub: "rate-limited · cached",
+        title: "The readings are fetched once",
+        body: "A serialised, rate-limited queue against the primary source, a fallback when it fails, and a permanent disk cache so a reading is never fetched twice.",
+      },
+      {
+        label: "Prayer cascade",
+        sub: "PostgreSQL templates",
+        title: "The prayers are matched",
+        body: "Templates and hand corrections in PostgreSQL, matched to the day through a cascading engine.",
+      },
+      {
+        label: "Word builder",
+        sub: "docx · daily or monthly",
+        title: "A print-ready .docx comes out",
+        body: "The missalette is assembled as a Word document a layout desk can send to print, with progress streamed back to the client as it builds.",
+      },
+    ],
+    decisions: [
+      {
+        title: "Progress over fetch, not EventSource",
+        body: "EventSource cannot send an Authorization header. Behind the sign-in gate the stream answered 401 and the progress bar simply stopped — so the client streams over fetch, and a test asserts it never reaches for EventSource.",
+      },
+      {
+        title: "SQLite to PostgreSQL in week 3",
+        body: "Hosting needed a server database. The cost is named, not discovered later: the single-file desktop installer is on hold, because it relied on SQLite being a file.",
+      },
+      {
+        title: "A demo that cannot leak",
+        body: "The public seed is generated by a script that strips copyrighted scripture text and the office’s transcribed prayers before anything is committed.",
+      },
+      {
+        title: "Demo mode is the default",
+        body: "Only the exact string ‘false’ turns it off, so a mistyped variable leaves a visible demo rather than a silently broken build.",
+      },
+    ],
+    checks: [
+      { k: "Server tests", v: "138", note: "1 skips without a real PostgreSQL" },
+      { k: "Client tests", v: "14" },
+      { k: "Last full run", v: "11 Oct 2026", note: "per the README" },
+      { k: "Regression guards", v: "boot · stream · CSP", note: "sign-in over HTTP, no EventSource, policy headers" },
+    ],
+    limits:
+      "The demo shows the interface, not the pipeline: readings and prayers are stand-ins, and nothing is fetched or generated server-side.",
+    source: { label: "Architecture in the README", href: "https://github.com/Damudachi/LiturgyGen#architecture" },
+  } satisfies Engineering,
 };
+
+const INTELSY_REPO = "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY";
 
 export const INTELSY = {
   plate: "PLATE III",
@@ -248,12 +640,19 @@ export const INTELSY = {
   category: "COMPUTER VISION",
   summary:
     "A computer-vision pipeline for detecting hardhats, safety vests, and face masks.",
-  stack: ["Python", "YOLOv8", "OpenCV", "PyTorch"],
-  repo: "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY",
+  /**
+   * No per-person commit count here, on purpose: the team worked from one
+   * shared account, so the repository's history cannot say who did what.
+   */
+  contribution: {
+    role: "Built jointly by the MIGHT team, working together from one shared account — the work is the team’s as a whole, not split by person.",
+  } satisfies Contribution,
+  stack: ["Python", "YOLOv8", "OpenCV", "PyTorch", "Google Colab"],
+  repo: INTELSY_REPO,
   links: [
     {
       label: "Team repository",
-      href: "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY",
+      href: INTELSY_REPO,
       lead: false,
     },
   ],
@@ -261,26 +660,120 @@ export const INTELSY = {
   legend: [
     {
       n: 1,
-      title: "Three PPE classes",
-      body: "YOLOv8 fine-tuned to detect hardhats, safety vests and face masks on the factory floor.",
+      title: "Fourteen classes, PPE first",
+      body: "YOLOv8 fine-tuned on the 14-class Roboflow PPE Combined set: hardhats, safety vests and face masks, their NO- counterparts, and the context around them.",
     },
     {
       n: 2,
       title: "Live and batch inference",
-      body: "Real-time webcam inference for demonstration, plus batch evaluation runs over held-out footage.",
+      body: "One script runs a still image, a folder, a video or a live webcam, from a committed checkpoint — no training needed to demonstrate it.",
     },
     {
       n: 3,
       title: "Ablation studies",
-      body: "Trained across a sweep of image dimensions and dataset fractions to see what each one actually buys.",
+      body: "Early runs swept dataset fraction and image size to see what each one buys before committing to a full training run.",
     },
     {
       n: 4,
       title: "What was compared",
-      body: "Precision, recall, mAP@0.5, mAP@0.5:0.95 and inference latency, measured per configuration.",
+      body: "Precision, recall, mAP@0.5 and mAP@0.5:0.95 per configuration, against a non-learning majority-class baseline.",
     },
   ] satisfies LegendItem[],
   caption: "Illustration of the detection task. Not model output.",
+  output: {
+    fig: "FIG. 3.2 — ONE VALIDATION BATCH",
+    note: "The final checkpoint’s real predictions on held-out images, beside the human labels for the same batch. Images: Roboflow PPE Combined, CC BY 4.0.",
+    pred: "Model predictions",
+    labels: "Ground-truth labels",
+    alt: {
+      pred: "A four-by-four grid of construction-site photographs with the model’s boxes: mostly hardhats at confidence 0.3 to 0.8, and one safety vest.",
+      labels: "The same sixteen photographs with the human-annotated boxes the model was scored against.",
+    },
+  },
+  measures: [
+    {
+      value: "0.78",
+      label: "mAP@0.5, final checkpoint",
+      basis: "Validation set (8,814 images), epoch 30 of the final run. mAP@0.5:0.95 is 0.52.",
+    },
+    {
+      value: "0.84",
+      label: "recall",
+      basis: "Same run; precision 0.71. For a safety tool, a missed hardhat costs more than a false alarm.",
+    },
+    {
+      value: "0.06",
+      label: "mAP@0.5, where it started",
+      basis: "The first short YOLOv8n run, before full training. Kept here because it is where the work started.",
+    },
+  ] satisfies Measure[],
+  engineering: {
+    trace: [
+      {
+        label: "Dataset",
+        sub: "Roboflow PPE Combined v8",
+        title: "A public, labelled dataset",
+        body: "30,765 training, 8,814 validation and 4,423 test images at 640 × 640, CC BY 4.0. Heavily imbalanced: hardhats dominate, people and ladders are rare.",
+      },
+      {
+        label: "EDA & baselines",
+        sub: "majority class · YOLOv8n",
+        title: "What doing nothing scores",
+        body: "A majority-class-per-box baseline reaches 0.41 accuracy and 0.04 macro-F1 — the floor any detector has to clear.",
+      },
+      {
+        label: "Ablations",
+        sub: "data fraction · image size",
+        title: "What each knob buys",
+        body: "Short runs varying the data fraction and the input size. More data helped mAP; recall stayed low in every short run.",
+      },
+      {
+        label: "Training",
+        sub: "640 px · batch 16 · 30 epochs",
+        title: "The full run",
+        body: "Fine-tuned in Colab, resumed from the previous run’s weights, at 640 px for 30 epochs.",
+      },
+      {
+        label: "Evaluation",
+        sub: "P · R · mAP per class",
+        title: "Scored per class",
+        body: "Precision, recall and mAP on the validation set, with per-class mAP showing where the model is weakest — masks and the NO- classes.",
+      },
+      {
+        label: "Inference",
+        sub: "image · folder · webcam",
+        title: "One entry point",
+        body: "detect.py runs any source from the committed checkpoint, so a demonstration never depends on retraining.",
+      },
+    ],
+    decisions: [
+      {
+        title: "Recall over precision",
+        body: "A detector that misses an unprotected worker is worse than one that raises a false alarm a person can dismiss.",
+      },
+      {
+        title: "Baseline before model",
+        body: "A non-learning baseline sets the floor, so the model’s number means something.",
+      },
+      {
+        title: "Review, not autonomy",
+        body: "The report positions the system as decision support with human review, not an automated compliance judge.",
+      },
+    ],
+    checks: [
+      { k: "Hardhat", v: "0.54", note: "mAP@0.5:0.95, local test validation" },
+      { k: "Safety vest", v: "0.48", note: "mAP@0.5:0.95" },
+      { k: "Mask", v: "0.38", note: "mAP@0.5:0.95 — the weakest PPE class" },
+      { k: "Overall", v: "0.79 · 0.52", note: "mAP@0.5 · mAP@0.5:0.95, local test validation" },
+      { k: "Latency", v: "Not reported", note: "defined in the report; no figure was committed" },
+    ],
+    limits:
+      "Scores are on Roboflow imagery, not footage from a real site. Classes are imbalanced, and the per-class numbers matter more than the overall one.",
+    source: {
+      label: "Release notes and metrics",
+      href: `${INTELSY_REPO}/blob/main/docs/release_notes_v1.0.md`,
+    },
+  } satisfies Engineering,
 };
 
 export const MORE_BUILDS = [
@@ -534,6 +1027,17 @@ export const CREDENTIALS: {
     href: "https://www.freecodecamp.org/certification/damudachi/relational-database-v8",
   },
 ];
+
+/**
+ * TODO(Aldrich): put the PDF you want public at public/resume.pdf and set
+ * `href` to "/resume.pdf". Until then the contact sheet shows a plainly
+ * marked empty slot rather than a link that 404s.
+ */
+export const RESUME: { href: string | null; label: string; pending: string } = {
+  href: null,
+  label: "Résumé",
+  pending: "PDF to be supplied",
+};
 
 export const CONTACT = {
   headline: "Let’s build something useful.",

@@ -1029,12 +1029,11 @@ export const CREDENTIALS: {
 ];
 
 /**
- * TODO(Aldrich): put the PDF you want public at public/resume.pdf and set
- * `href` to "/resume.pdf". Until then the contact sheet shows a plainly
- * marked empty slot rather than a link that 404s.
+ * The PDF lives at public/Resume.pdf. The path is case-sensitive on the host,
+ * so keep the capital R. Set `href` to null to show the empty slot instead.
  */
 export const RESUME: { href: string | null; label: string; pending: string } = {
-  href: null,
+  href: "/Resume.pdf",
   label: "Résumé",
   pending: "PDF to be supplied",
 };

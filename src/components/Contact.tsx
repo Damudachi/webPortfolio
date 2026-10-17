@@ -35,7 +35,7 @@ export function Contact() {
                 </a>
               ))}
               {RESUME.href ? (
-                <a className="channel" href={RESUME.href} download>
+                <a className="channel" href={RESUME.href} download="Aldrich_Sabando_Resume.pdf">
                   <span className="mono">{RESUME.label}</span>
                   <span className="channel__val">PDF</span>
                   <span className="channel__go">Download</span>

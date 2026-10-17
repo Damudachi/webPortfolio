@@ -72,8 +72,22 @@ export function StackCreds() {
                     </>
                   );
 
-                  /* Only a credential with an issuer page to point at becomes
-                     a link, so nothing unverifiable is dressed up as proof. */
+                  /* A credential links to its issuer page when there is one,
+                     otherwise to the certificate file itself. */
+                  if (credential.file) {
+                    return (
+                      <a
+                        className="cred cred--go"
+                        key={credential.title}
+                        href={credential.file.href}
+                        download={credential.file.download}
+                      >
+                        {face}
+                        <span className="mono cred__verify">Download certificate</span>
+                      </a>
+                    );
+                  }
+
                   return credential.href ? (
                     <a
                       className="cred cred--go"

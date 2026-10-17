@@ -1113,14 +1113,16 @@ export const STACK = [
  *
  * Titles, issuers and dates are the issuers' own: the Credly entries were
  * read back from their badge assertions rather than transcribed, so what the
- * page claims and what the badge says cannot drift apart. The two without
- * links are certificate files with no public verification page.
+ * page claims and what the badge says cannot drift apart. The two with no
+ * public verification page carry `file` instead: the certificate itself,
+ * served from public/cert and downloaded like the résumé.
  */
 export const CREDENTIALS: {
   title: string;
   issuer: string;
   year: string;
   href?: string;
+  file?: { href: string; download: string };
 }[] = [
   {
     title: "Supervised Machine Learning: Regression and Classification",
@@ -1132,6 +1134,7 @@ export const CREDENTIALS: {
     title: "SkillQuest — Generative AI Literacy",
     issuer: "Simplilearn SkillUp",
     year: "MAY 2026",
+    file: { href: "/cert/certificate.pdf", download: "Aldrich_Sabando_SkillQuest_GenAI_Literacy.pdf" },
   },
   {
     title: "AWS Academy Graduate — Cloud Foundations",
@@ -1167,6 +1170,10 @@ export const CREDENTIALS: {
     title: "HackAda AI Challenge — AI in UX for Fintech",
     issuer: "KadaKareer × Home Credit",
     year: "DEC 2025",
+    file: {
+      href: "/cert/Aldrich%20Gavriel_HCHackadaCertificate.pdf",
+      download: "Aldrich_Sabando_HackAda_AI_Challenge.pdf",
+    },
   },
   {
     title: "Cyber Threat Management",

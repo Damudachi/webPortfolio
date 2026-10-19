@@ -1027,11 +1027,18 @@ export const EXPERIENCE = [
     body: "Built LiturgyGen to automate Philippine liturgical date resolution, reading retrieval, prayer matching, and .docx missalette generation.",
   },
   {
-    role: "Student Assistant Scholar & Google Developer Organization Staff",
+    role: "Student Office Assistant",
+    org: "Holy Angel University · Angeles City, on-site",
+    terms: "Part-time, scholarship service",
+    dates: "JUN 2023 — OCT 2026",
+    body: "Selected under HAU’s scholarship program, serving the university in exchange for a 100% tuition exemption. Handled paperwork and administrative requirements, prepared and staffed university events, and coordinated with students, faculty, and staff. Made pubmats, edited promotional videos, and helped livestream events, working alongside university personnel and fellow student assistants.",
+  },
+  {
+    role: "Google Developer Organization Staff",
     org: "Holy Angel University",
     terms: "",
     dates: "JUN 2023 — PRESENT",
-    body: "Earned a 100% full-tuition scholarship for the full college program in recognition of sustained service as a Student Assistant. Supported office operations and coordinated technical events.",
+    body: "Coordinated technical events.",
   },
   {
     role: "VP for Marketing",

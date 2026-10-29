@@ -1,6 +1,7 @@
 import { Ink } from "./Ink";
 import { Outward } from "./Outward";
 import { PlateIntelsy } from "./PlateIntelsy";
+import { PlateKindway } from "./PlateKindway";
 import { PlateLiturgyGen } from "./PlateLiturgyGen";
 import { PlateTulongGuro } from "./PlateTulongGuro";
 import { RolePicker, RolePlates } from "./RoleLens";
@@ -15,7 +16,7 @@ export function SelectedWork() {
             <p className="index">
               <span>01 /</span> SELECTED WORK
             </p>
-            <p className="mono">Applied AI / Computer vision / Automation</p>
+            <p className="mono">Applied AI / Computer vision / Automation / Mobile</p>
           </div>
 
           <div>
@@ -23,7 +24,7 @@ export function SelectedWork() {
               <Ink>Built for real-world friction.</Ink>
             </h2>
             <p className="lede" data-reveal="read" style={{ marginTop: 18 }}>
-              Three systems, each drawn with the artifact that actually explains it. Point at a
+              Four systems, each drawn with the artifact that actually explains it. Point at a
               line in the key and the drawing will show you where it lives.
             </p>
 
@@ -33,6 +34,7 @@ export function SelectedWork() {
               plates={{
                 tulongguro: <PlateTulongGuro />,
                 liturgygen: <PlateLiturgyGen />,
+                kindway: <PlateKindway />,
                 intelsy: <PlateIntelsy />,
               }}
             />

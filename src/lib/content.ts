@@ -9,7 +9,7 @@ export const SITE = {
   descriptor: "APPLIED AI · SOFTWARE ENGINEERING",
   title: "Aldrich Sabando — Applied AI & Software Engineering",
   description:
-    "Developer working across multimodal AI, computer vision, full-stack systems, and the pipelines that keep them running. Selected work: TulongGuro, LiturgyGen, INTELSY.",
+    "Developer working across multimodal AI, computer vision, full-stack systems, and the pipelines that keep them running. Selected work: TulongGuro, LiturgyGen, Kindway, INTELSY.",
   location: "Pampanga, Philippines",
   year: new Date().getFullYear(),
 };
@@ -169,7 +169,8 @@ export type Engineering = {
   decisions: Decision[];
   checks: Check[];
   limits: string;
-  source: { label: string; href: string };
+  /** Absent when the code is private: there is nothing public to point at. */
+  source?: { label: string; href: string };
 };
 
 /**
@@ -187,7 +188,7 @@ export type Contribution = { role: string; commits?: string; note?: string };
 export type CaseNotes = {
   scope: string;
   did: string[];
-  problem: { title: string; body: string; href: string; label: string };
+  problem: { title: string; body: string; href?: string; label: string };
   next: string;
 };
 
@@ -679,6 +680,173 @@ export const LITURGYGEN = {
   } satisfies Engineering,
 };
 
+/**
+ * Kindway's repository is private, so nothing here links into it: the
+ * figures come from its README, docs/roadmap.md, docs/security-review.md and
+ * docs/ai-evaluation.md, and the test count from a full `jest` run on
+ * 29 Oct 2026 (510 passed; the 69 skipped need the hosted project or a live
+ * model). The commit count is the local history, one author.
+ */
+const KW_SITE = "https://kindway.pages.dev/";
+
+export const KINDWAY = {
+  plate: "PLATE IV",
+  index: "04",
+  title: "Kindway",
+  descriptor: "AI Reflection Journal for Android & the Web",
+  year: "2026",
+  category: "MOBILE & WEB",
+  summary:
+    "A private evening journal for Android and the iPhone web, with AI that reflects on an entry only when asked, and only with consent.",
+  contribution: {
+    role: "Sole developer — the app, the backend and the AI pipeline.",
+    commits: "39 of 39 commits",
+    note: "private repository",
+  } satisfies Contribution,
+  notes: {
+    scope: "Sole developer: all of it is mine",
+    did: [
+      "The Expo app for Android and its web build for iPhone: onboarding, the composer, journal, Patterns, Compass and the Tomorrow Bridge, a night scheme, reminders and an Android home-screen widget.",
+      "The Supabase side: migrations with Row Level Security on every table, two-user pgTAP tests, cloud sync and account deletion.",
+      "The AI path: three Edge Functions, versioned consent per feature, a request ledger with a cooldown and a daily cap, and a 20-case live evaluation of the replies.",
+    ],
+    problem: {
+      title: "“Written by AI” could be faked",
+      body: "My security review found that a signed-in user could insert their own AI rows, so a reflection’s provider, model and label could be forged inside their own account. Now only the Edge Functions write those rows, with the server key and the verified user id; users can read and delete them but never create one. pgTAP tests and a hosted smoke test that tries a direct write keep it that way.",
+      label: "Security review, finding SR-1 · private repository",
+    },
+    next: "Replace last-writer-wins sync with field-level conflict handling before anyone uses two devices, and have the safety flow reviewed by a clinician rather than resting on a phrase check and the model’s own flag.",
+  } satisfies CaseNotes,
+  stack: [
+    "React Native",
+    "Expo",
+    "TypeScript",
+    "Supabase Auth",
+    "PostgreSQL + RLS",
+    "Edge Functions",
+    "GroqCloud",
+    "Cloudflare Pages",
+    "Jest",
+    "pgTAP",
+  ],
+  links: [{ label: "Open the web app", href: KW_SITE, lead: true }],
+  demoNote:
+    "The web app is the iPhone build. It works with no account, everything kept in your browser; real AI needs an account and consent, so without one the reflections are simulated and say so. The code is in a private repository.",
+  captured: "29 OCT 2026",
+  shots: [
+    {
+      src: "today",
+      bar: "kindway.pages.dev / today",
+      alt: "Kindway’s Today screen at night: “How are you arriving tonight?”, a Write a thought button, and the day’s entry on a winding trail tagged Worried and Proud.",
+      fig: "FIG. 4.2 — TODAY",
+    },
+    {
+      src: "consent",
+      bar: "kindway.pages.dev / consent",
+      alt: "An onboarding step headed “Your thoughts deserve care.”, explaining separately what happens when the journal is stored and when AI reflects on it.",
+      fig: "FIG. 4.3 — WHAT HAPPENS TO YOUR WORDS",
+    },
+    {
+      src: "reflection",
+      bar: "kindway.pages.dev / reflection",
+      alt: "A reflection on a sample entry about presenting a project in class, marked “Preview response · simulated” because no account is signed in.",
+      fig: "FIG. 4.4 — A REFLECTION, LABELLED",
+      note: "Simulated: no account, so no real AI, and the screen says so. The entry was written for this capture.",
+    },
+  ],
+  legend: [
+    {
+      n: 1,
+      title: "Free writing, on the device",
+      body: "The journal works fully with no account: entries live on the phone, or in the browser’s IndexedDB on the web.",
+    },
+    {
+      n: 2,
+      title: "Consent per feature",
+      body: "Reflections, reviews and follow-ups each need their own recorded, versioned consent, and withdrawing one stops the next request on the server.",
+    },
+    {
+      n: 3,
+      title: "Only the server writes AI",
+      body: "Edge Functions verify the user, check consent and the request ledger, call the model, and store the reply with the server key.",
+    },
+    {
+      n: 4,
+      title: "510 automated tests",
+      body: "Across 28 suites, run 29 Oct 2026. Another 69 run only against the hosted project and the live model.",
+    },
+  ] satisfies LegendItem[],
+  context: "Built for a two-person closed beta: the owner on Android, a friend on iPhone.",
+  engineering: {
+    trace: [
+      {
+        label: "Composer",
+        sub: "React Native · Expo Router",
+        title: "An entry is written on the device",
+        body: "Free writing first; feelings, prompts and compass values are optional. The entry is saved on the phone — IndexedDB in a browser — before anything else happens.",
+      },
+      {
+        label: "Cloud backup",
+        sub: "Supabase · Postgres · RLS",
+        title: "Synced only if asked",
+        body: "With an account and backup on, records sync to Postgres. Every table has Row Level Security, so a row is only ever its owner’s. Sync is per record, last writer wins.",
+      },
+      {
+        label: "Consent check",
+        sub: "versioned · revocable",
+        title: "Consent is checked on the server",
+        body: "Reflection, review and follow-up each need their own consent at the current version. An outdated or withdrawn one is refused before any model is called.",
+      },
+      {
+        label: "Edge Function",
+        sub: "Deno · request ledger",
+        title: "The server builds the request",
+        body: "It verifies the token, reads the entry itself, then runs the safety screen and the ledger: one request at a time, a cooldown, a daily cap. The client never sends entry text or a user id.",
+      },
+      {
+        label: "Language model",
+        sub: "GroqCloud · gpt-oss-120b",
+        title: "Three advisors, then one answer",
+        body: "Three advisor passes write notes against flattery, the answer is written from them and validated, and any safety flag sends the user to support instead. Zero Data Retention is on.",
+      },
+      {
+        label: "AI outputs",
+        sub: "server-only writes",
+        title: "Stored where only the server writes",
+        body: "The reply is saved with the server key under the verified user and read back on the user’s other devices. Users can delete it; they cannot forge one.",
+      },
+    ],
+    decisions: [
+      {
+        title: "The journal works without an account",
+        body: "Device first. An account, cloud backup and AI are three separate choices, each asked for when it matters, so the app is still useful with all three off.",
+      },
+      {
+        title: "Simulated is labelled, never passed off",
+        body: "Without real AI the app shows pre-written previews chosen by style and tags, and each one says that nothing read the writing.",
+      },
+      {
+        title: "A web app instead of an iOS build",
+        body: "A native iPhone build needs a paid Apple Developer account, so the iPhone gets an installable PWA from the same code. The cost is named: no reminders or widget there yet.",
+      },
+      {
+        title: "Risk goes to people, not the model",
+        body: "If the phrase check or the model flags a safety concern, the app shows verified Philippine support contacts and no model text.",
+      },
+    ],
+    checks: [
+      { k: "Automated tests", v: "510 pass", note: "28 suites, 29 Oct 2026; 69 more need the live services" },
+      { k: "Hosted smoke test", v: "9 / 9", note: "two throwaway accounts, live model, a direct write refused" },
+      { k: "Live AI evaluation", v: "20 cases", note: "2 problems found, fixed and rerun" },
+      { k: "Security review", v: "10 findings", note: "none High; both Mediums fixed" },
+      { k: "Accessibility", v: "14 screens", note: "every control named; AA contrast tested in both schemes" },
+      { k: "Users", v: "2", note: "a closed beta — no usage figures yet" },
+    ],
+    limits:
+      "A two-person beta, not a launch. The AI evaluation is product QA on fictional entries, judged by me, not clinical validation. Safety screening is a phrase check plus the model’s own flag, and sync is last writer wins.",
+  } satisfies Engineering,
+};
+
 const INTELSY_REPO = "https://github.com/ShawnUriel/MIGHT-TEAM_INTELSY";
 
 export const INTELSY = {
@@ -863,7 +1031,7 @@ export const INTELSY = {
 
 export const MORE_BUILDS: { n: string; title: string; body: string; href?: string }[] = [
   {
-    n: "04",
+    n: "05",
     title: "MeatShopPOS",
     // From src/main/scala/MeatInventoryPOS.scala and build.sbt in the repo.
     // Not claimed: transactional sales — the stock-update statement there is
@@ -872,25 +1040,25 @@ export const MORE_BUILDS: { n: string; title: string; body: string; href?: strin
     href: "https://github.com/Damudachi/MeatShopPOS_Scala",
   },
   {
-    n: "05",
+    n: "06",
     title: "Watts Energy",
     body: "Flutter household energy forecasting app.",
   },
   {
-    n: "06",
+    n: "07",
     title: "HAU About That Way",
     body: "Flutter and Supabase campus navigation app.",
   },
 ];
 
 /**
- * Explore by role. A role reorders the three plates and marks the stack terms
+ * Explore by role. A role reorders the four plates and marks the stack terms
  * the work on this page actually demonstrates — a term that is only listed
  * (RAG, BERT, AWS) is never highlighted, because nothing above shows it.
  * Every summary is a sentence the plates themselves already prove.
  */
 export type RoleKey = "swe" | "ai" | "fullstack";
-export type PlateId = "tulongguro" | "liturgygen" | "intelsy";
+export type PlateId = "tulongguro" | "liturgygen" | "kindway" | "intelsy";
 
 export const ROLES: {
   key: RoleKey;
@@ -904,12 +1072,13 @@ export const ROLES: {
     key: "swe",
     label: "IT / Software Engineering",
     summary:
-      "Applications built around a real office’s workflow and kept honest by tests. LiturgyGen, built solo for a campus office, runs 152 automated tests. TulongGuro’s testing closed 170 functional and regression cases. The bugs I diagnosed are written up commit by commit.",
-    order: ["liturgygen", "tulongguro", "intelsy"],
+      "Applications built around a real office’s workflow and kept honest by tests. LiturgyGen, built solo for a campus office, runs 152 automated tests. TulongGuro’s testing closed 170 functional and regression cases. Kindway, a solo mobile and web app, runs 510. The bugs I diagnosed are written up commit by commit.",
+    order: ["liturgygen", "tulongguro", "kindway", "intelsy"],
     look: [
       { href: "#liturgygen-notes", label: "LiturgyGen — a stalled stream, diagnosed" },
       { href: "#liturgygen-engineering", label: "LiturgyGen — tests and regression guards" },
       { href: "#tulongguro-notes", label: "TulongGuro — a race that undid teachers’ grades" },
+      { href: "#kindway-engineering", label: "Kindway — 510 tests and a security review" },
       { href: "#builds", label: "MeatShopPOS — Scala and MySQL" },
     ],
     stack: [
@@ -931,13 +1100,14 @@ export const ROLES: {
     key: "ai",
     label: "AI / Machine Learning",
     summary:
-      "Models integrated into real workflows, with the evaluation and the limits shown. TulongGuro’s Gemini vision-language grader drafted marks in the teacher’s band only 25.71% of the time, so a teacher approves every grade. INTELSY, a team project, fine-tuned YOLOv8 for PPE detection to mAP@0.5 0.78.",
-    order: ["tulongguro", "intelsy", "liturgygen"],
+      "Models integrated into real workflows, with the evaluation and the limits shown. TulongGuro’s Gemini vision-language grader drafted marks in the teacher’s band only 25.71% of the time, so a teacher approves every grade. INTELSY, a team project, fine-tuned YOLOv8 for PPE detection to mAP@0.5 0.78. Kindway sends an entry to a model only with consent, and its replies went through a 20-case live evaluation.",
+    order: ["tulongguro", "intelsy", "kindway", "liturgygen"],
     look: [
       { href: "#tulongguro-engineering", label: "TulongGuro — the vision-language pipeline and its scores" },
       { href: "#lab", label: "TulongGuro — the grading walkthrough (simulated)" },
       { href: "#intelsy", label: "INTELSY — real validation output (team)" },
       { href: "#intelsy-engineering", label: "INTELSY — per-class scores and limits" },
+      { href: "#kindway-engineering", label: "Kindway — consent-gated AI and its evaluation" },
     ],
     stack: [
       "Python",
@@ -952,18 +1122,21 @@ export const ROLES: {
     key: "fullstack",
     label: "Full-stack / DevOps",
     summary:
-      "Two deployed full-stack apps: React clients, Express APIs, and PostgreSQL through Prisma or Supabase, hosted on Vercel, Render and GitHub Pages. LiturgyGen’s public demo swaps the real API for a seeded mock behind one interface.",
-    order: ["tulongguro", "liturgygen", "intelsy"],
+      "Three deployed apps: React clients, Express APIs, and PostgreSQL through Prisma or Supabase, hosted on Vercel, Render, GitHub Pages and Cloudflare Pages. LiturgyGen’s public demo swaps the real API for a seeded mock behind one interface; Kindway is one React Native codebase shipped to Android and the web.",
+    order: ["tulongguro", "kindway", "liturgygen", "intelsy"],
     look: [
       { href: "#tulongguro-engineering", label: "TulongGuro — from the web app to PostgreSQL" },
       { href: "#liturgygen-engineering", label: "LiturgyGen — API, queue, cache and stream" },
       { href: "#liturgygen-notes", label: "LiturgyGen — an auth bug in a streaming API" },
+      { href: "#kindway-engineering", label: "Kindway — local-first sync, RLS and Edge Functions" },
     ],
     stack: [
       "React",
+      "React Native",
       "Vite",
       "Tailwind CSS",
       "JavaScript",
+      "TypeScript",
       "Node.js",
       "Express.js",
       "REST APIs",
@@ -972,6 +1145,7 @@ export const ROLES: {
       "Prisma",
       "Vercel",
       "Render",
+      "Cloudflare Pages",
       "Git",
       "GitHub",
     ],
@@ -1077,7 +1251,7 @@ export const STACK = [
   },
   {
     group: "Frontend",
-    terms: ["React", "Vite", "Flutter", "Tailwind CSS", "JavaScript"],
+    terms: ["React", "React Native", "Expo", "Vite", "Flutter", "Tailwind CSS", "JavaScript", "TypeScript"],
   },
   {
     group: "Backend / Data",
@@ -1096,7 +1270,7 @@ export const STACK = [
   },
   {
     group: "Cloud / DevOps",
-    terms: ["Docker", "Nginx", "Vercel", "Render", "AWS EC2", "AWS RDS", "AWS Lambda"],
+    terms: ["Docker", "Nginx", "Vercel", "Render", "Cloudflare Pages", "AWS EC2", "AWS RDS", "AWS Lambda"],
   },
   {
     group: "Engineering",

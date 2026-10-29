@@ -1378,6 +1378,29 @@ main:focus {
   }
 }
 
+/* Phone captures are tall, so three sit in a row. Below tablet they pan in
+   their own strip, as the drawings do, rather than stacking three screens
+   deep. */
+.plate__shots--phone {
+  grid-auto-flow: column;
+  grid-auto-columns: min(62%, 260px);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+
+.plate__shots--phone .shot {
+  scroll-snap-align: start;
+}
+
+@media (min-width: 760px) {
+  .plate__shots--phone {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, 1fr);
+    overflow-x: visible;
+  }
+}
+
 /* ---------------- captures of the running software ----------------
 
    Printed in grey with everything else, and back in full colour under the

@@ -16,6 +16,7 @@ export function Shot({
   note,
   href,
   sizes = "(min-width: 1060px) 46vw, 92vw",
+  captured = CAPTURED,
 }: {
   src: StaticImageData;
   alt: string;
@@ -24,6 +25,8 @@ export function Shot({
   note?: string;
   href?: string;
   sizes?: string;
+  /** When this capture was taken, if not on the page's main capture day. */
+  captured?: string;
 }) {
   const frame = (
     <span className="fig shot__fig">
@@ -31,7 +34,7 @@ export function Shot({
         <span className="mono">{bar}</span>
         <span className="mono shot__stamp">
           {href ? <Outward /> : null}
-          {CAPTURED}
+          {captured}
         </span>
       </span>
       <span className="shot__img">

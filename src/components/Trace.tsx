@@ -175,10 +175,12 @@ export function EngineeringView({ data, name }: { data: Engineering; name: strin
             ))}
           </dl>
           <p className="note eng__limits">{data.limits}</p>
-          <a className="link eng__src" href={data.source.href} target="_blank" rel="noopener noreferrer">
-            {data.source.label}
-            <Outward />
-          </a>
+          {data.source ? (
+            <a className="link eng__src" href={data.source.href} target="_blank" rel="noopener noreferrer">
+              {data.source.label}
+              <Outward />
+            </a>
+          ) : null}
         </section>
       </div>
     </div>

@@ -337,9 +337,13 @@ export function CaseNotes({ slug, data }: { slug: string; data: CaseNotesData })
           <p className="mono">Problem → what changed</p>
           <p className="case__title">{data.problem.title}</p>
           <p>{data.problem.body}</p>
-          <a className="link" href={data.problem.href} target="_blank" rel="noopener noreferrer">
-            {data.problem.label}
-          </a>
+          {data.problem.href ? (
+            <a className="link" href={data.problem.href} target="_blank" rel="noopener noreferrer">
+              {data.problem.label}
+            </a>
+          ) : (
+            <p className="mono-plain">{data.problem.label}</p>
+          )}
         </div>
 
         <div className="case__block">

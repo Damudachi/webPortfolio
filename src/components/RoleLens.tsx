@@ -106,7 +106,7 @@ export function RolePicker() {
         ) : (
           <p className="note">
             Choose a role to put the most relevant work first and mark the matching stack. Nothing
-            is hidden: all three projects stay on the page.
+            is hidden: all four projects stay on the page.
           </p>
         )}
       </div>

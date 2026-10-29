@@ -736,19 +736,19 @@ export const KINDWAY = {
   shots: [
     {
       src: "today",
-      bar: "kindway.pages.dev / today",
+      bar: "Today",
       alt: "Kindway’s Today screen at night: “How are you arriving tonight?”, a Write a thought button, and the day’s entry on a winding trail tagged Worried and Proud.",
       fig: "FIG. 4.2 — TODAY",
     },
     {
       src: "consent",
-      bar: "kindway.pages.dev / consent",
+      bar: "Consent",
       alt: "An onboarding step headed “Your thoughts deserve care.”, explaining separately what happens when the journal is stored and when AI reflects on it.",
       fig: "FIG. 4.3 — WHAT HAPPENS TO YOUR WORDS",
     },
     {
       src: "reflection",
-      bar: "kindway.pages.dev / reflection",
+      bar: "Reflection",
       alt: "A reflection on a sample entry about presenting a project in class, marked “Preview response · simulated” because no account is signed in.",
       fig: "FIG. 4.4 — A REFLECTION, LABELLED",
       note: "Simulated: no account, so no real AI, and the screen says so. The entry was written for this capture.",
